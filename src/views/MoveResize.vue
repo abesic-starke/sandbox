@@ -28,6 +28,8 @@
           @mouseup="resizeHandleDown = false">
         </div>
       </div>
+      <!-- <div class="caption"></div> -->
+      <slot class="content"></slot>
     </div>
 
   </div>
@@ -44,7 +46,7 @@ export default {
         movementX: 0,
         movementY: 0
       },
-
+      preventLeavingParent: true,
       resizeHandleDown: false
     }
   },
@@ -73,18 +75,24 @@ export default {
       const newTop = (this.$refs['drag'].offsetTop - this.positions.movementY)
       const newLeft = (this.$refs['drag'].offsetLeft - this.positions.movementX)
       
-      const elementStyleRef = this.$refs['drag'].style 
+      const elementRef = this.$refs['drag']
+      const parentElementRef = elementRef.parentElement
 
-      elementStyleRef.top = newTop + 'px'
-      elementStyleRef.left = newLeft + 'px'
+      const parentWidth = parentElementRef.offsetWidth
+      const parentHeight = parentElementRef.offsetHeight
+      console.warn(parentWidth, parentHeight)
 
+      elementRef.style.top = newTop + 'px'
+      elementRef.style.left = newLeft + 'px'
 
-      if (newTop < 0) {
-        elementStyleRef.top = 0
-      }
-      
-      if (newLeft < 0) {
-        elementStyleRef.left = 0
+      if (this.preventLeavingParent) {
+        if (newTop < 0) {
+          elementRef.style.top = 0
+        }
+        
+        if (newLeft < 0) {
+          elementRef.style.left = 0
+        }
       }
     
       console.log('top', newTop)
@@ -185,7 +193,7 @@ export default {
 .MoveResize {
   position: relative;
   height: 400px;
-  width: 400px;
+  width: 300px;
   outline: 1px solid black;
   margin-top: 50px;
   margin-left: 50px;
