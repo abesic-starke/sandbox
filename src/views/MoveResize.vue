@@ -207,11 +207,11 @@ export default {
             const height = original_height - (e.pageY - original_mouse_y)
             if (width > minimum_size) {
               element.style.width = width + 'px'
-              // 50 was test, REPLACE 50 with parent pixels away from 0, 0 of window...
               element.style.left = original_x + (e.pageX - original_mouse_x) - parentViewportOffset.left + 'px'
             }
             if (height > minimum_size) {
               element.style.height = height + 'px'
+              // UNLESS WE WANT TO ALLOW TO DRAG BELOW BOTTOM FOR FORMS
               element.style.top = original_y + (e.pageY - original_mouse_y) - parentViewportOffset.top + 'px'
             }
           }
