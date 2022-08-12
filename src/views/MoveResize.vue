@@ -1,7 +1,8 @@
 <template>
   <div
   class="MoveResize"
-  @mouseleave="stopDragWhenMouseOutsideFunc">
+  @mouseleave="stopDragWhenMouseOutsideFunc"
+  ref="drag-parent">
 
     <div
     class='resizable'
@@ -138,8 +139,7 @@ export default {
     }
   },
   mounted() {
-    /*Make resizable div by Hung Nguyen*/
-    function makeResizableDiv(div) {
+    const makeResizableDiv = (div) => {
       const element = document.querySelector(div)
       const resizers = document.querySelectorAll(div + ' .resizer')
       const minimum_size = 20
@@ -164,7 +164,11 @@ export default {
           window.addEventListener('mouseup', stopResize)
         })
         
-        function resize(e) {
+        const resize = (e) =>  {
+          // these are relative to the viewport, i.e. the window
+          const parentViewportOffset = this.$refs['drag-parent'].getBoundingClientRect()
+          console.warn(parentViewportOffset.top, parentViewportOffset.left)
+          
           if (currentResizer.classList.contains('bottom-right')) {
             const width = original_width + (e.pageX - original_mouse_x);
             const height = original_height + (e.pageY - original_mouse_y)
@@ -183,7 +187,7 @@ export default {
             }
             if (width > minimum_size) {
               element.style.width = width + 'px'
-              element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
+              element.style.left = original_x + (e.pageX - original_mouse_x) - parentViewportOffset.left + 'px'
             }
           }
           else if (currentResizer.classList.contains('top-right')) {
@@ -194,19 +198,21 @@ export default {
             }
             if (height > minimum_size) {
               element.style.height = height + 'px'
-              element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
+              element.style.top = original_y + (e.pageY - original_mouse_y) - parentViewportOffset.top + 'px'
             }
           }
+          // top left
           else {
             const width = original_width - (e.pageX - original_mouse_x)
             const height = original_height - (e.pageY - original_mouse_y)
             if (width > minimum_size) {
               element.style.width = width + 'px'
-              element.style.left = original_x + (e.pageX - original_mouse_x) + 'px'
+              // 50 was test, REPLACE 50 with parent pixels away from 0, 0 of window...
+              element.style.left = original_x + (e.pageX - original_mouse_x) - parentViewportOffset.left + 'px'
             }
             if (height > minimum_size) {
               element.style.height = height + 'px'
-              element.style.top = original_y + (e.pageY - original_mouse_y) + 'px'
+              element.style.top = original_y + (e.pageY - original_mouse_y) - parentViewportOffset.top + 'px'
             }
           }
         }
