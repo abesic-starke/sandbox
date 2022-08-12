@@ -62,7 +62,7 @@ export default {
       dragEnabled: true,
       resizeEnabled: true,
       preventLeavingParent: true,
-      stopDragWhenMouseOutside: true,
+      stopDragWhenMouseOutside: false,
     }
   },
   components: {
@@ -113,9 +113,13 @@ export default {
         // prevent leaving left
         if (newLeft < 0) elementRef.style.left = 0
         // prevent leaving bottom
-
-        if (newTop > (parentHeight - elementHeight)) {
-          elementRef.style.top = parentHeight - elementHeight + 'px'
+        const maxChildPosFromTop = parentHeight - elementHeight
+        if (newTop > maxChildPosFromTop) {
+          elementRef.style.top = maxChildPosFromTop + 'px'
+        }
+        const maxChildPosFromLeft = parentWidth - elementWidth
+        if (newLeft > maxChildPosFromLeft) {
+          elementRef.style.left = maxChildPosFromLeft + 'px'
         }
       }
     
@@ -146,7 +150,7 @@ export default {
       let original_mouse_x = 0
       let original_mouse_y = 0
 
-      for (let i = 0;i < resizers.length; i++) {
+      for (let i = 0; i < resizers.length; i++) {
         const currentResizer = resizers[i]
         currentResizer.addEventListener('mousedown', function(e) {
           e.preventDefault()
