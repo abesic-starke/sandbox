@@ -1,28 +1,35 @@
 <template>
-  <div class="MoveResize">
+  <div
+  class="MoveResize"
+  @mouseleave="stopDragWhenMouseOutsideFunc">
 
     <div
     class='resizable'
     @mousedown="startDrag($event, 'dragref')"
-    ref="drag"
-    draggable="true">
-      <div class='resizers'>
+    ref="drag">
+      <div
+      class='resizers'
+      >
         <div
+          v-if="resizeEnabled"
           class='resizer top-left'
           @mousedown="resizeHandleDown = true"
           @mouseup="resizeHandleDown = false">
         </div>
         <div
+          v-if="resizeEnabled"
           class='resizer top-right'
           @mousedown="resizeHandleDown = true"
           @mouseup="resizeHandleDown = false">
         </div>
         <div
+          v-if="resizeEnabled"
           class='resizer bottom-left'
           @mousedown="resizeHandleDown = true"
           @mouseup="resizeHandleDown = false">
         </div>
         <div
+          v-if="resizeEnabled"
           class='resizer bottom-right'
           @mousedown="resizeHandleDown = true"
           @mouseup="resizeHandleDown = false">
@@ -40,14 +47,22 @@ export default {
   name: 'MoveResize',
   data() {
     return {
+      // temp
+      resizeHandleDown: false,
+      // data
       positions: {
         clientX: undefined,
         clientY: undefined,
         movementX: 0,
         movementY: 0
       },
+      // props
+      grid: [1, 1], // [px, px]
+      allowClickThrough: true,
+      dragEnabled: true,
+      resizeEnabled: true,
       preventLeavingParent: true,
-      resizeHandleDown: false
+      stopDragWhenMouseOutside: true,
     }
   },
   components: {
@@ -55,6 +70,9 @@ export default {
   },
   methods: {
     startDrag(e) {
+      // Check if dragging is enabled
+      if (!this.dragEnabled) return
+      // Check if user isn't currently resizing
       if (this.resizeHandleDown) return
 
       e.preventDefault()
@@ -62,7 +80,7 @@ export default {
       this.positions.clientX = e.clientX
       this.positions.clientY = e.clientY
       document.onmousemove = this.elementDrag
-      document.onmouseup = this.closeDragElement
+      document.onmouseup = this.stopDrag
     },
     elementDrag: function (e) {
       // console.log(e)
@@ -75,32 +93,44 @@ export default {
       const newTop = (this.$refs['drag'].offsetTop - this.positions.movementY)
       const newLeft = (this.$refs['drag'].offsetLeft - this.positions.movementX)
       
+      // drag element refs
       const elementRef = this.$refs['drag']
-      const parentElementRef = elementRef.parentElement
+      const elementWidth = elementRef.offsetWidth
+      const elementHeight = elementRef.offsetHeight
 
+      // parent refs
+      const parentElementRef = elementRef.parentElement
       const parentWidth = parentElementRef.offsetWidth
       const parentHeight = parentElementRef.offsetHeight
-      console.warn(parentWidth, parentHeight)
+      // console.warn(parentWidth, parentHeight)
 
       elementRef.style.top = newTop + 'px'
       elementRef.style.left = newLeft + 'px'
 
       if (this.preventLeavingParent) {
-        if (newTop < 0) {
-          elementRef.style.top = 0
-        }
-        
-        if (newLeft < 0) {
-          elementRef.style.left = 0
+        // prevent leaving top
+        if (newTop < 0) elementRef.style.top = 0
+        // prevent leaving left
+        if (newLeft < 0) elementRef.style.left = 0
+        // prevent leaving bottom
+
+        if (newTop > (parentHeight - elementHeight)) {
+          elementRef.style.top = parentHeight - elementHeight + 'px'
         }
       }
     
-      console.log('top', newTop)
-      console.log('left', newLeft)
+      // console.log('top', newTop)
+      // console.log('left', newLeft)
     },
-    closeDragElement () {
+    stopDrag () {
       document.onmouseup = null
       document.onmousemove = null
+    },
+    stopDragWhenMouseOutsideFunc () {
+      if (this.stopDragWhenMouseOutside) {
+        document.onmouseup = null
+        document.onmousemove = null
+      }
     }
   },
   mounted() {
@@ -184,6 +214,9 @@ export default {
     }
 
     makeResizableDiv('.resizable')
+  },
+  created() {
+   
   }
 }
 </script>
@@ -218,7 +251,7 @@ export default {
 .resizable .resizers .resizer{
   width: 10px;
   height: 10px;
-  background: white;
+  background: black;
   border: 2px solid #FF4500;
   position: absolute;
 }
