@@ -5,13 +5,17 @@
       @syncData="fields = $event">
 
       <template v-for="(field, i) in fields" :key="i" v-slot:[i]>
-        <div class="someContent" v-if="field.type == 'input'">
-          <p>very pretty</p>
-          <button @click="log()">hallo</button>
+        <div class="someContent" v-if="field.type == 'button'">
+          <p>Press me</p>
+          <button @click="log()">button</button>
         </div>
 
         <div class="someContent" v-if="field.type == 'text'">
           <p>NO pretty</p>
+        </div>
+
+        <div class="someContent" v-if="field.type == 'input'">
+          <input placeholder="Value">
         </div>
       </template>
 
@@ -49,6 +53,13 @@ export default {
           y: 250,
           w: 150,
           h: 150
+        },
+        {
+          type: 'button',
+          x: 0,
+          y: 0,
+          w: 100,
+          h: 100
         }
       ]
     }

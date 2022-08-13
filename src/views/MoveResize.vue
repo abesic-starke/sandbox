@@ -5,15 +5,14 @@
   @mouseleave="stopDragWhenMouseOutsideFunc"
   ref="drag-parent"
   @click.shift="dragEnabled = !dragEnabled"
-  @click.ctrl="resizeEnabled = !resizeEnabled"
-  @keypress="deleteTile()"
-  >
+  @click.ctrl="resizeEnabled = !resizeEnabled">
   
     <div
     v-for="(tile, ti) in tiles" :key="ti"
     :class="['resizable', `tile-${ti}`, {enableBorder: resizeEnabled || dragEnabled}]"
     :ref="`drag-${ti}`"
     @mousedown="startDrag($event, ti)"
+    @click="selectTile(ti)"
     :style="[
       {top: px(getDefaultPos(tiles[ti].y, 'y'))},
       {left: px(getDefaultPos(tiles[ti].x, 'x'))},
@@ -83,7 +82,6 @@ export default {
   },
   methods: {
     deleteTile() {
-      console.log('hi')
       this.tiles.splice(this.curSelTileIndex, 1)
 
       this.syncData()
@@ -109,13 +107,15 @@ export default {
     
       return pos
     },
-    startDrag(e, tileIndex) {
+    selectTile(tileIndex) {
+      console.log('sel')
+      this.curSelTileIndex = tileIndex
+    },
+    startDrag(e) {
       // Check if dragging is enabled
       if (!this.dragEnabled) return
       // Check if user isn't currently resizing
       if (this.resizeHandleDown) return
-
-      this.curSelTileIndex = tileIndex
 
       e.preventDefault()
       // get the mouse cursor position at startup:
