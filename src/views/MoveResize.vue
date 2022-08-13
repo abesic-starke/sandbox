@@ -5,11 +5,12 @@
   @mouseleave="stopDragWhenMouseOutsideFunc"
   ref="drag-parent"
   @click.shift="dragEnabled = !dragEnabled"
+  @click.ctrl="resizeEnabled = !resizeEnabled"
   >
   
     <div
     v-for="(tile, ti) in posData" :key="ti"
-    :class="['resizable', `tile-${ti}`, {disableTileBorder: !resizeEnabled}]"
+    :class="['resizable', `tile-${ti}`, {enableBorder: resizeEnabled}]"
     :ref="`drag-${ti}`"
     @mousedown="startDrag($event, ti)"
     :style="[
@@ -36,6 +37,9 @@
           @mouseup="resizeHandleDown = false">
         </div>
       </div>
+
+      <!-- READ ONLY OVERLAY (DISABLES CLICKS) -->
+      <div class="readOnlyOverlay" v-if="readOnly"></div>
     </div>
 
   </div>
@@ -67,10 +71,11 @@ export default {
       grid: [1, 1], // [px, px]
       allowClickThrough: true,
       dragEnabled: true,
-      resizeEnabled: false,
+      resizeEnabled: true,
       preventLeavingParent: true,
       stopDragWhenMouseOutside: true,
-      allowDragBelowBottom: false
+      allowDragBelowBottom: false,
+      readOnly: false
     }
   },
   components: {
@@ -112,7 +117,6 @@ export default {
       document.onmouseup = this.stopDrag
     },
     elementDrag(e) {
-      // console.warn(e, index)
       e.preventDefault()
       this.positions.movementX = this.positions.clientX - e.clientX
       this.positions.movementY = this.positions.clientY - e.clientY
@@ -158,14 +162,14 @@ export default {
       // console.log('top', newTop)
       // console.log('left', newLeft)
     },
-    stopDrag(e) {
-      // drag element refs
-      const elementRef = this.$refs[`drag-${this.curSelTileIndex}`][0]
+    stopDrag() {
+      // drag element ref
+      const elRef = this.$refs[`drag-${this.curSelTileIndex}`][0]
       const lastPosAndSize = {
-        x: elementRef.offsetLeft + this.parentViewportOffset.x,
-        y: elementRef.offsetTop + this.parentViewportOffset.y,
-        w: elementRef.offsetWidth,
-        h: elementRef.offsetHeight
+        x: elRef.offsetLeft + this.parentViewportOffset.x,
+        y: elRef.offsetTop + this.parentViewportOffset.y,
+        w: elRef.offsetWidth,
+        h: elRef.offsetHeight
       }
       
       this.posData[this.curSelTileIndex] = {...lastPosAndSize}
@@ -307,7 +311,6 @@ export default {
 .resizable .resizers {
   width: 100%;
   height: 100%;
-  border: 3px solid #FF4500;
   box-sizing: border-box;
 }
 
@@ -315,6 +318,7 @@ export default {
   width: 10px;
   height: 10px;
   background: black;
+  border: 2px solid #FF4500;
   position: absolute;
 }
 
@@ -339,13 +343,20 @@ export default {
   cursor: nwse-resize;
 }
 
-.content {
+.content, .readOnlyOverlay {
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: calc(100% - 6px);
-  height: calc(100% - 6px);
-  // background-color: seagreen;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.enableBorder {
+  outline: 2px solid #FF4500;
+}
+
+.readOnlyOverlay {
+  background-color: rgba(255,0,0,.25);
 }
 
 </style>

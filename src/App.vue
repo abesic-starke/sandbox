@@ -4,7 +4,7 @@
       <template v-slot:hey>
         <div class="someContent">
           <p>very pretty</p>
-          <button>hallo</button>
+          <button @click="log()">hallo</button>
         </div>
       </template>
     </MoveResize>
@@ -17,6 +17,11 @@ import MoveResize from '@/views/MoveResize'
 export default {
   components: {
     MoveResize
+  },
+  methods: {
+    log() {
+      console.log('click')
+    }
   }
 }
 </script>
