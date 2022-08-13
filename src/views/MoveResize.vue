@@ -99,12 +99,15 @@ export default {
       this.positions.movementY = this.positions.clientY - e.clientY
       this.positions.clientX = e.clientX
       this.positions.clientY = e.clientY
+
+      const tileRef = this.$refs[`drag-${this.curSelTileIndex}`][0]
+
       // set the element's new position:
-      const newTop = (this.$refs[`drag-${this.curSelTileIndex}`].offsetTop - this.positions.movementY)
-      const newLeft = (this.$refs[`drag-${this.curSelTileIndex}`].offsetLeft - this.positions.movementX)
+      const newTop = (tileRef.offsetTop - this.positions.movementY)
+      const newLeft = (tileRef.offsetLeft - this.positions.movementX)
       
       // drag element refs
-      const elementRef = this.$refs[`drag-${this.curSelTileIndex}`]
+      const elementRef = this.$refs[`drag-${this.curSelTileIndex}`][0]
       const elementWidth = elementRef.offsetWidth
       const elementHeight = elementRef.offsetHeight
 
