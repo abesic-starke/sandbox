@@ -108,14 +108,15 @@ export default {
       return pos
     },
     selectTile(tileIndex) {
-      console.log('sel')
       this.curSelTileIndex = tileIndex
     },
-    startDrag(e) {
+    startDrag(e, tileIndex) {
       // Check if dragging is enabled
       if (!this.dragEnabled) return
       // Check if user isn't currently resizing
       if (this.resizeHandleDown) return
+
+      this.selectTile(tileIndex)
 
       e.preventDefault()
       // get the mouse cursor position at startup:
