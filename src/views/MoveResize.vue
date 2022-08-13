@@ -49,7 +49,7 @@ export default {
         movementX: 0,
         movementY: 0
       },
-      curSelTileIndex: 'drag-0',
+      curSelTileIndex: 0,
       posData: [
         {x: 0, y: 0, w: 100, h: 100},
         {x: 100, y: 100, w: 150, h: 100}
