@@ -10,7 +10,7 @@
   
     <div
     v-for="(tile, ti) in posData" :key="ti"
-    :class="['resizable', `tile-${ti}`, {enableBorder: resizeEnabled}]"
+    :class="['resizable', `tile-${ti}`, {enableBorder: resizeEnabled || dragEnabled}]"
     :ref="`drag-${ti}`"
     @mousedown="startDrag($event, ti)"
     :style="[
@@ -22,7 +22,7 @@
     ]">
       <!-- <div class="caption"></div> -->
       <div class="content">
-        <slot name="hey"></slot>
+        <slot :name="ti"></slot>
       </div>
 
       <!-- RESIZE HANDLES -->

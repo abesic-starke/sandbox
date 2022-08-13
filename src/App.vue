@@ -1,12 +1,20 @@
 <template>
   <div class="App">
     <MoveResize>
-      <template v-slot:hey>
+
+      <template v-slot:0>
         <div class="someContent">
           <p>very pretty</p>
           <button @click="log()">hallo</button>
         </div>
       </template>
+
+      <template v-slot:1>
+        <div class="someContent">
+          <p>NO pretty</p>
+        </div>
+      </template>
+      
     </MoveResize>
   </div>
 </template>
