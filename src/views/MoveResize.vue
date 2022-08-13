@@ -3,11 +3,18 @@
   class="MoveResize"
   @mouseleave="stopDragWhenMouseOutsideFunc"
   ref="drag-parent">
+  
     <div
     class='resizable'
-    @mousedown="startDrag($event, 'dragref')"
-    :style="[{top: `${posData[0].y}px`}, {left: `${posData[0].x}px`}]"
-    ref="drag">
+    @mousedown="startDrag($event, 0)"
+    :style="[
+      {top: `${getDefaultPos(posData[0].y)}px`},
+      {left: `${getDefaultPos(posData[0].x)}px`},
+      {width: `${posData[0].w}px`},
+      {height: `${posData[0].h}px`},
+      {zIndex: curSelTileIndex == 0? 1000 : 1}
+    ]"
+    :ref="`drag-${0}`">
       <div
       class='resizers'
       >
@@ -40,6 +47,50 @@
       <slot class="content"></slot>
     </div>
 
+    <div
+    class='resizable'
+    @mousedown="startDrag($event, 1)"
+    :style="[
+      {top: `${getDefaultPos(posData[1].y)}px`},
+      {left: `${getDefaultPos(posData[1].x)}px`},
+      {width: `${posData[1].w}px`},
+      {height: `${posData[1].h}px`},
+      {zIndex: curSelTileIndex == 1? 1000 : 1}
+    ]"
+    :ref="`drag-${1}`">
+      <div
+      class='resizers'
+      >
+        <div
+          v-if="resizeEnabled"
+          class='resizer top-left'
+          @mousedown="resizeHandleDown = true"
+          @mouseup="resizeHandleDown = false">
+        </div>
+        <div
+          v-if="resizeEnabled"
+          class='resizer top-right'
+          @mousedown="resizeHandleDown = true"
+          @mouseup="resizeHandleDown = false">
+        </div>
+        <div
+          v-if="resizeEnabled"
+          class='resizer bottom-left'
+          @mousedown="resizeHandleDown = true"
+          @mouseup="resizeHandleDown = false">
+        </div>
+        <div
+          v-if="resizeEnabled"
+          class='resizer bottom-right'
+          @mousedown="resizeHandleDown = true"
+          @mouseup="resizeHandleDown = false">
+        </div>
+      </div>
+      <!-- <div class="caption"></div> -->
+      <slot class="content"></slot>
+    </div>
+
+
   </div>
 </template>
 
@@ -57,8 +108,10 @@ export default {
         movementX: 0,
         movementY: 0
       },
+      curSelTileIndex: 'drag-0',
       posData: [
-        {x: 100, y: 200}
+        {x: 0, y: 0, w: 100, h: 100},
+        {x: 100, y: 100, w: 150, h: 100}
       ],
       // props
       grid: [1, 1], // [px, px]
@@ -66,7 +119,7 @@ export default {
       dragEnabled: true,
       resizeEnabled: true,
       preventLeavingParent: true,
-      stopDragWhenMouseOutside: false,
+      stopDragWhenMouseOutside: true,
       allowDragBelowBottom: true
     }
   },
@@ -74,11 +127,18 @@ export default {
 
   },
   methods: {
-    startDrag(e) {
+    getDefaultPos(pos) {
+      if (pos > 0) return (pos - 50) < 0 ? 0 : pos - 50 
+
+      return pos
+    },
+    startDrag(e, tileIndex) {
       // Check if dragging is enabled
       if (!this.dragEnabled) return
       // Check if user isn't currently resizing
       if (this.resizeHandleDown) return
+
+      this.curSelTileIndex = tileIndex
 
       e.preventDefault()
       // get the mouse cursor position at startup:
@@ -88,17 +148,18 @@ export default {
       document.onmouseup = this.stopDrag
     },
     elementDrag(e) {
+      // console.warn(e, index)
       e.preventDefault()
       this.positions.movementX = this.positions.clientX - e.clientX
       this.positions.movementY = this.positions.clientY - e.clientY
       this.positions.clientX = e.clientX
       this.positions.clientY = e.clientY
       // set the element's new position:
-      const newTop = (this.$refs['drag'].offsetTop - this.positions.movementY)
-      const newLeft = (this.$refs['drag'].offsetLeft - this.positions.movementX)
+      const newTop = (this.$refs[`drag-${this.curSelTileIndex}`].offsetTop - this.positions.movementY)
+      const newLeft = (this.$refs[`drag-${this.curSelTileIndex}`].offsetLeft - this.positions.movementX)
       
       // drag element refs
-      const elementRef = this.$refs['drag']
+      const elementRef = this.$refs[`drag-${this.curSelTileIndex}`]
       const elementWidth = elementRef.offsetWidth
       const elementHeight = elementRef.offsetHeight
 
@@ -131,10 +192,15 @@ export default {
       // console.log('left', newLeft)
     },
     stopDrag(e) {
-      console.log()
-      const lastPos = e.target.getBoundingClientRect()
+      const lastPosAndSize = e.target.getBoundingClientRect()
+      console.log(lastPosAndSize)
       
-      this.posData[0] = {x: lastPos.x, y: lastPos.y}
+      this.posData[this.curSelTileIndex] = {
+        x: lastPosAndSize.x,
+        y: lastPosAndSize.y,
+        w: lastPosAndSize.width,
+        h: lastPosAndSize.height
+      }
 
       document.onmouseup = null
       document.onmousemove = null
@@ -297,6 +363,15 @@ export default {
   right: -5px;
   bottom: -5px;
   cursor: nwse-resize;
+}
+
+.content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: seagreen;
 }
 
 </style>
