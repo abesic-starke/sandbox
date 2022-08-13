@@ -1,20 +1,20 @@
 <template>
   <div class="App">
-    <MoveResize>
+    <MoveResize
+      :tileData="fields"
+      @syncData="fields = $event">
 
-      <template v-slot:0>
-        <div class="someContent">
+      <template v-for="(field, i) in fields" :key="i" v-slot:[i]>
+        <div class="someContent" v-if="field.type == 'input'">
           <p>very pretty</p>
           <button @click="log()">hallo</button>
         </div>
-      </template>
 
-      <template v-slot:1>
-        <div class="someContent">
+        <div class="someContent" v-if="field.type == 'text'">
           <p>NO pretty</p>
         </div>
       </template>
-      
+
     </MoveResize>
   </div>
 </template>
@@ -25,6 +25,33 @@ import MoveResize from '@/views/MoveResize'
 export default {
   components: {
     MoveResize
+  },
+  data() {
+    return {
+      fields: [
+        {
+          type: 'input',
+          x: 100,
+          y: 10,
+          w: 150,
+          h: 40
+        },
+        {
+          type: 'input',
+          x: 0,
+          y: 200,
+          w: 150,
+          h: 40
+        },
+        {
+          type: 'text',
+          x: 150,
+          y: 250,
+          w: 150,
+          h: 150
+        }
+      ]
+    }
   },
   methods: {
     log() {

@@ -6,18 +6,19 @@
   ref="drag-parent"
   @click.shift="dragEnabled = !dragEnabled"
   @click.ctrl="resizeEnabled = !resizeEnabled"
+  @keypress="deleteTile()"
   >
   
     <div
-    v-for="(tile, ti) in posData" :key="ti"
+    v-for="(tile, ti) in tiles" :key="ti"
     :class="['resizable', `tile-${ti}`, {enableBorder: resizeEnabled || dragEnabled}]"
     :ref="`drag-${ti}`"
     @mousedown="startDrag($event, ti)"
     :style="[
-      {top: `${getDefaultPos(posData[ti].y, 'y')}px`},
-      {left: `${getDefaultPos(posData[ti].x, 'x')}px`},
-      {width: `${posData[ti].w}px`},
-      {height: `${posData[ti].h}px`},
+      {top: px(getDefaultPos(tiles[ti].y, 'y'))},
+      {left: px(getDefaultPos(tiles[ti].x, 'x'))},
+      {width: px(tiles[ti].w)},
+      {height: px(tiles[ti].h)},
       {zIndex: curSelTileIndex == ti? 1000 : 1}
     ]">
       <!-- <div class="caption"></div> -->
@@ -48,12 +49,12 @@
 <script>
 export default {
   name: 'MoveResize',
+  props: ['tileData'],
   data() {
     return {
       handles: ['top-left', 'top-right', 'bottom-right', 'bottom-left'],
       // temp
       resizeHandleDown: false,
-      curDraggingTime: 0,
       // data
       positions: {
         clientX: undefined,
@@ -62,9 +63,8 @@ export default {
         movementY: 0
       },
       curSelTileIndex: 0,
-      posData: [
-        {x: 50, y: 0, w: 100, h: 100},
-        {x: 100, y: 200, w: 150, h: 200}
+      tiles: [
+        
       ],
       parentViewportOffset: {x: 0, y: 0},
       // props
@@ -82,15 +82,23 @@ export default {
 
   },
   methods: {
+    deleteTile() {
+      console.log('hi')
+      this.tiles.splice(this.curSelTileIndex, 1)
+
+      this.syncData()
+    },
     dynamicallyCreateTile() {
-      this.posData.push({
+      this.tiles.push({
         x: this.parentViewportOffset.x,
         y: this.parentViewportOffset.y,
         w: 100,
         h: 100
       })
+
+      this.syncData()
     },
-    convertToPx(num) {
+    px(num) {
       return num + 'px'
     },
     getDefaultPos(pos, direction) {
@@ -139,8 +147,8 @@ export default {
       const parentWidth = parentElementRef.offsetWidth
       const parentHeight = parentElementRef.offsetHeight
 
-      elementRef.style.top = newTop + 'px'
-      elementRef.style.left = newLeft + 'px'
+      elementRef.style.top = this.px(newTop)
+      elementRef.style.left = this.px(newLeft)
 
       if (this.preventLeavingParent) {
         // prevent leaving top
@@ -150,12 +158,12 @@ export default {
         // prevent leaving bottom
         const maxChildPosFromTop = parentHeight - elementHeight
         if (newTop > maxChildPosFromTop && !this.allowDragBelowBottom) {
-          elementRef.style.top = maxChildPosFromTop + 'px'
+          elementRef.style.top = this.px(maxChildPosFromTop)
         }
         // prevent leaving right
         const maxChildPosFromLeft = parentWidth - elementWidth
         if (newLeft > maxChildPosFromLeft) {
-          elementRef.style.left = maxChildPosFromLeft + 'px'
+          elementRef.style.left = this.px(maxChildPosFromLeft)
         }
       }
 
@@ -165,25 +173,26 @@ export default {
     stopDrag() {
       // drag element ref
       const elRef = this.$refs[`drag-${this.curSelTileIndex}`][0]
-      const lastPosAndSize = {
-        x: elRef.offsetLeft + this.parentViewportOffset.x,
-        y: elRef.offsetTop + this.parentViewportOffset.y,
-        w: elRef.offsetWidth,
-        h: elRef.offsetHeight
-      }
       
-      this.posData[this.curSelTileIndex] = {...lastPosAndSize}
+      const tileDataRef = this.tiles[this.curSelTileIndex]
+      tileDataRef.x = elRef.offsetLeft + this.parentViewportOffset.x
+      tileDataRef.y = elRef.offsetTop + this.parentViewportOffset.y
+      tileDataRef.w = elRef.offsetWidth
+      tileDataRef.h = elRef.offsetHeight
 
       document.onmouseup = null
       document.onmousemove = null
 
-      this.curDraggingTime = 0
+      this.syncData()
     },
     stopDragWhenMouseOutsideFunc() {
       if (this.stopDragWhenMouseOutside) {
         document.onmouseup = null
         document.onmousemove = null
       }
+    },
+    syncData() {
+      this.$emit('syncData', this.tiles)
     }
   },
   mounted() {
@@ -229,10 +238,10 @@ export default {
             const width = startWidth + (e.pageX - startMouseX)
             const height = startHeight + (e.pageY - startMouseY)
             if (width > minSize) {
-              element.style.width = width + 'px'
+              element.style.width = this.px(width)
             }
             if (height > minSize) {
-              element.style.height = height + 'px'
+              element.style.height = this.px(height)
             }
           }
           // RESIZE BOTTOM LEFT
@@ -240,11 +249,11 @@ export default {
             const height = startHeight + (e.pageY - startMouseY)
             const width = startWidth - (e.pageX - startMouseX)
             if (height > minSize) {
-              element.style.height = height + 'px'
+              element.style.height = this.px(height)
             }
             if (width > minSize) {
-              element.style.width = width + 'px'
-              element.style.left = startX + (e.pageX - startMouseX) - parentViewportOffset.left + 'px'
+              element.style.width = this.px(width)
+              element.style.left = startX + (e.pageX - startMouseX) - this.px(parentViewportOffset.left)
             }
           }
           // RESIZE TOP RIGHT
@@ -252,11 +261,11 @@ export default {
             const width = startWidth + (e.pageX - startMouseX)
             const height = startHeight - (e.pageY - startMouseY)
             if (width > minSize) {
-              element.style.width = width + 'px'
+              element.style.width = this.px(width)
             }
             if (height > minSize) {
-              element.style.height = height + 'px'
-              element.style.top = startY + (e.pageY - startMouseY) - parentViewportOffset.top + 'px'
+              element.style.height = this.px(height)
+              element.style.top = startY + (e.pageY - startMouseY) - this.px(parentViewportOffset.top)
             }
           }
           // RESIZE TOP LEFT
@@ -264,12 +273,12 @@ export default {
             const width = startWidth - (e.pageX - startMouseX)
             const height = startHeight - (e.pageY - startMouseY)
             if (width > minSize) {
-              element.style.width = width + 'px'
-              element.style.left = startX + (e.pageX - startMouseX) - parentViewportOffset.left + 'px'
+              element.style.width = this.px(width)
+              element.style.left = startX + (e.pageX - startMouseX) - this.px(parentViewportOffset.left)
             }
             if (height > minSize) {
-              element.style.height = height + 'px'
-              element.style.top = startY + (e.pageY - startMouseY) - parentViewportOffset.top + 'px'
+              element.style.height = this.px(height)
+              element.style.top = startY + (e.pageY - startMouseY) - this.px(parentViewportOffset.top)
             }
           }
         }
@@ -280,12 +289,19 @@ export default {
       }
     }
 
-    this.posData.forEach((tile, tileIndex) => {
+    this.tiles.forEach((tile, tileIndex) => {
       makeDivResizable(`.tile-${tileIndex}`)
+    })
+
+    // handle deleting field
+    window.addEventListener('keyup', (e) => {
+      if (e.key == 'Delete') {
+        this.deleteTile()
+      }
     })
   },
   created() {
-   
+    this.tiles = this.tileData
   }
 }
 </script>
