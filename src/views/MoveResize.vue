@@ -5,40 +5,24 @@
   ref="drag-parent">
   
     <div
-    class='resizable'
-    @mousedown="startDrag($event, 0)"
+    v-for="(tile, ti) in posData" :key="ti"
+    :class="['resizable', `tile-${ti}`]"
+    @mousedown="startDrag($event, ti)"
     :style="[
-      {top: `${getDefaultPos(posData[0].y)}px`},
-      {left: `${getDefaultPos(posData[0].x)}px`},
-      {width: `${posData[0].w}px`},
-      {height: `${posData[0].h}px`},
-      {zIndex: curSelTileIndex == 0? 1000 : 1}
+      {top: `${getDefaultPos(posData[ti].y)}px`},
+      {left: `${getDefaultPos(posData[ti].x)}px`},
+      {width: `${posData[ti].w}px`},
+      {height: `${posData[ti].h}px`},
+      {zIndex: curSelTileIndex == ti? 1000 : 1}
     ]"
-    :ref="`drag-${0}`">
+    :ref="`drag-${ti}`">
       <div
       class='resizers'
       >
         <div
-          v-if="resizeEnabled"
-          class='resizer top-left'
-          @mousedown="resizeHandleDown = true"
-          @mouseup="resizeHandleDown = false">
-        </div>
-        <div
-          v-if="resizeEnabled"
-          class='resizer top-right'
-          @mousedown="resizeHandleDown = true"
-          @mouseup="resizeHandleDown = false">
-        </div>
-        <div
-          v-if="resizeEnabled"
-          class='resizer bottom-left'
-          @mousedown="resizeHandleDown = true"
-          @mouseup="resizeHandleDown = false">
-        </div>
-        <div
-          v-if="resizeEnabled"
-          class='resizer bottom-right'
+          v-show="resizeEnabled"
+          v-for="handle in handles" :key="handle"
+          :class="['resizer', handle]"
           @mousedown="resizeHandleDown = true"
           @mouseup="resizeHandleDown = false">
         </div>
@@ -46,50 +30,6 @@
       <!-- <div class="caption"></div> -->
       <slot class="content"></slot>
     </div>
-
-    <div
-    class='resizable'
-    @mousedown="startDrag($event, 1)"
-    :style="[
-      {top: `${getDefaultPos(posData[1].y)}px`},
-      {left: `${getDefaultPos(posData[1].x)}px`},
-      {width: `${posData[1].w}px`},
-      {height: `${posData[1].h}px`},
-      {zIndex: curSelTileIndex == 1? 1000 : 1}
-    ]"
-    :ref="`drag-${1}`">
-      <div
-      class='resizers'
-      >
-        <div
-          v-if="resizeEnabled"
-          class='resizer top-left'
-          @mousedown="resizeHandleDown = true"
-          @mouseup="resizeHandleDown = false">
-        </div>
-        <div
-          v-if="resizeEnabled"
-          class='resizer top-right'
-          @mousedown="resizeHandleDown = true"
-          @mouseup="resizeHandleDown = false">
-        </div>
-        <div
-          v-if="resizeEnabled"
-          class='resizer bottom-left'
-          @mousedown="resizeHandleDown = true"
-          @mouseup="resizeHandleDown = false">
-        </div>
-        <div
-          v-if="resizeEnabled"
-          class='resizer bottom-right'
-          @mousedown="resizeHandleDown = true"
-          @mouseup="resizeHandleDown = false">
-        </div>
-      </div>
-      <!-- <div class="caption"></div> -->
-      <slot class="content"></slot>
-    </div>
-
 
   </div>
 </template>
@@ -99,6 +39,7 @@ export default {
   name: 'MoveResize',
   data() {
     return {
+      handles: ['top-left', 'top-right', 'bottom-right', 'bottom-left'],
       // temp
       resizeHandleDown: false,
       // data
@@ -128,6 +69,10 @@ export default {
   },
   methods: {
     getDefaultPos(pos) {
+      // fixes position when X or Y greater than 0
+      // replace 50 with offset of parent!!!
+      // const maxChildPosFromTop = parentHeight - elementHeight
+
       if (pos > 0) return (pos - 50) < 0 ? 0 : pos - 50 
 
       return pos
@@ -303,7 +248,9 @@ export default {
       }
     }
 
-    makeDivResizable('.resizable')
+    this.posData.forEach((tile, tileIndex) => {
+      makeDivResizable(`.tile-${tileIndex}`)
+    })
   },
   created() {
    

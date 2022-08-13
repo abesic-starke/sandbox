@@ -1,13 +1,15 @@
 <template>
   <div class="App">
-    <router-view/>
+    <MoveResize />
   </div>
 </template>
 
 <script>
+import MoveResize from '@/views/MoveResize'
+
 export default {
-  created() {
-    this.$router.push('/move-resize')
+  components: {
+    MoveResize
   }
 }
 </script>
