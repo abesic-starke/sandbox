@@ -3,10 +3,10 @@
   class="MoveResize"
   @mouseleave="stopDragWhenMouseOutsideFunc"
   ref="drag-parent">
-
     <div
     class='resizable'
     @mousedown="startDrag($event, 'dragref')"
+    :style="[{top: `${posData[0].y}px`}, {left: `${posData[0].x}px`}]"
     ref="drag">
       <div
       class='resizers'
@@ -57,6 +57,9 @@ export default {
         movementX: 0,
         movementY: 0
       },
+      posData: [
+        {x: 100, y: 200}
+      ],
       // props
       grid: [1, 1], // [px, px]
       allowClickThrough: true,
@@ -64,6 +67,7 @@ export default {
       resizeEnabled: true,
       preventLeavingParent: true,
       stopDragWhenMouseOutside: false,
+      allowDragBelowBottom: true
     }
   },
   components: {
@@ -83,8 +87,7 @@ export default {
       document.onmousemove = this.elementDrag
       document.onmouseup = this.stopDrag
     },
-    elementDrag: function (e) {
-      // console.log(e)
+    elementDrag(e) {
       e.preventDefault()
       this.positions.movementX = this.positions.clientX - e.clientX
       this.positions.movementY = this.positions.clientY - e.clientY
@@ -103,7 +106,6 @@ export default {
       const parentElementRef = elementRef.parentElement
       const parentWidth = parentElementRef.offsetWidth
       const parentHeight = parentElementRef.offsetHeight
-      // console.warn(parentWidth, parentHeight)
 
       elementRef.style.top = newTop + 'px'
       elementRef.style.left = newLeft + 'px'
@@ -115,9 +117,10 @@ export default {
         if (newLeft < 0) elementRef.style.left = 0
         // prevent leaving bottom
         const maxChildPosFromTop = parentHeight - elementHeight
-        if (newTop > maxChildPosFromTop) {
+        if (newTop > maxChildPosFromTop && !this.allowDragBelowBottom) {
           elementRef.style.top = maxChildPosFromTop + 'px'
         }
+        // prevent leaving right
         const maxChildPosFromLeft = parentWidth - elementWidth
         if (newLeft > maxChildPosFromLeft) {
           elementRef.style.left = maxChildPosFromLeft + 'px'
@@ -127,11 +130,16 @@ export default {
       // console.log('top', newTop)
       // console.log('left', newLeft)
     },
-    stopDrag () {
+    stopDrag(e) {
+      console.log()
+      const lastPos = e.target.getBoundingClientRect()
+      
+      this.posData[0] = {x: lastPos.x, y: lastPos.y}
+
       document.onmouseup = null
       document.onmousemove = null
     },
-    stopDragWhenMouseOutsideFunc () {
+    stopDragWhenMouseOutsideFunc() {
       if (this.stopDragWhenMouseOutside) {
         document.onmouseup = null
         document.onmousemove = null
@@ -139,27 +147,31 @@ export default {
     }
   },
   mounted() {
-    const makeResizableDiv = (div) => {
+    const makeDivResizable = (div) => {
       const element = document.querySelector(div)
       const resizers = document.querySelectorAll(div + ' .resizer')
-      const minimum_size = 20
-      let original_width = 0
-      let original_height = 0
-      let original_x = 0
-      let original_y = 0
-      let original_mouse_x = 0
-      let original_mouse_y = 0
+
+      const minSize = 20
+      let startWidth = 0
+      let startHeight = 0
+      let startX = 0
+      let startY = 0
+      let startMouseX = 0
+      let startMouseY = 0
 
       for (let i = 0; i < resizers.length; i++) {
         const currentResizer = resizers[i]
-        currentResizer.addEventListener('mousedown', function(e) {
+
+        currentResizer.addEventListener('mousedown', (e) => {
           e.preventDefault()
-          original_width = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''));
-          original_height = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''));
-          original_x = element.getBoundingClientRect().left;
-          original_y = element.getBoundingClientRect().top;
-          original_mouse_x = e.pageX;
-          original_mouse_y = e.pageY;
+
+          startWidth = parseFloat(getComputedStyle(element, null).getPropertyValue('width').replace('px', ''))
+          startHeight = parseFloat(getComputedStyle(element, null).getPropertyValue('height').replace('px', ''))
+          startX = element.getBoundingClientRect().left
+          startY = element.getBoundingClientRect().top
+          startMouseX = e.pageX
+          startMouseY = e.pageY
+
           window.addEventListener('mousemove', resize)
           window.addEventListener('mouseup', stopResize)
         })
@@ -169,61 +181,63 @@ export default {
           const parentViewportOffset = this.$refs['drag-parent'].getBoundingClientRect()
           console.warn(parentViewportOffset.top, parentViewportOffset.left)
           
+          // RESIZE BOTTOM RIGHT
           if (currentResizer.classList.contains('bottom-right')) {
-            const width = original_width + (e.pageX - original_mouse_x);
-            const height = original_height + (e.pageY - original_mouse_y)
-            if (width > minimum_size) {
+            const width = startWidth + (e.pageX - startMouseX)
+            const height = startHeight + (e.pageY - startMouseY)
+            if (width > minSize) {
               element.style.width = width + 'px'
             }
-            if (height > minimum_size) {
+            if (height > minSize) {
               element.style.height = height + 'px'
             }
           }
+          // RESIZE BOTTOM LEFT
           else if (currentResizer.classList.contains('bottom-left')) {
-            const height = original_height + (e.pageY - original_mouse_y)
-            const width = original_width - (e.pageX - original_mouse_x)
-            if (height > minimum_size) {
+            const height = startHeight + (e.pageY - startMouseY)
+            const width = startWidth - (e.pageX - startMouseX)
+            if (height > minSize) {
               element.style.height = height + 'px'
             }
-            if (width > minimum_size) {
+            if (width > minSize) {
               element.style.width = width + 'px'
-              element.style.left = original_x + (e.pageX - original_mouse_x) - parentViewportOffset.left + 'px'
+              element.style.left = startX + (e.pageX - startMouseX) - parentViewportOffset.left + 'px'
             }
           }
+          // RESIZE TOP RIGHT
           else if (currentResizer.classList.contains('top-right')) {
-            const width = original_width + (e.pageX - original_mouse_x)
-            const height = original_height - (e.pageY - original_mouse_y)
-            if (width > minimum_size) {
+            const width = startWidth + (e.pageX - startMouseX)
+            const height = startHeight - (e.pageY - startMouseY)
+            if (width > minSize) {
               element.style.width = width + 'px'
             }
-            if (height > minimum_size) {
+            if (height > minSize) {
               element.style.height = height + 'px'
-              element.style.top = original_y + (e.pageY - original_mouse_y) - parentViewportOffset.top + 'px'
+              element.style.top = startY + (e.pageY - startMouseY) - parentViewportOffset.top + 'px'
             }
           }
-          // top left
+          // RESIZE TOP LEFT
           else {
-            const width = original_width - (e.pageX - original_mouse_x)
-            const height = original_height - (e.pageY - original_mouse_y)
-            if (width > minimum_size) {
+            const width = startWidth - (e.pageX - startMouseX)
+            const height = startHeight - (e.pageY - startMouseY)
+            if (width > minSize) {
               element.style.width = width + 'px'
-              element.style.left = original_x + (e.pageX - original_mouse_x) - parentViewportOffset.left + 'px'
+              element.style.left = startX + (e.pageX - startMouseX) - parentViewportOffset.left + 'px'
             }
-            if (height > minimum_size) {
+            if (height > minSize) {
               element.style.height = height + 'px'
-              // UNLESS WE WANT TO ALLOW TO DRAG BELOW BOTTOM FOR FORMS
-              element.style.top = original_y + (e.pageY - original_mouse_y) - parentViewportOffset.top + 'px'
+              element.style.top = startY + (e.pageY - startMouseY) - parentViewportOffset.top + 'px'
             }
           }
         }
         
-        function stopResize() {
+        const stopResize = () => {
           window.removeEventListener('mousemove', resize)
         }
       }
     }
 
-    makeResizableDiv('.resizable')
+    makeDivResizable('.resizable')
   },
   created() {
    
@@ -247,8 +261,6 @@ export default {
   width: 100px;
   height: 100px;
   position: absolute;
-  top: 100px;
-  left: 100px;
 }
 
 .resizable .resizers{
