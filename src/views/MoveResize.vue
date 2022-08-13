@@ -61,7 +61,7 @@ export default {
       resizeEnabled: true,
       preventLeavingParent: true,
       stopDragWhenMouseOutside: true,
-      allowDragBelowBottom: true
+      allowDragBelowBottom: false
     }
   },
   components: {
