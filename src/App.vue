@@ -1,6 +1,13 @@
 <template>
   <div class="App">
-    <MoveResize />
+    <MoveResize>
+      <template v-slot:hey>
+        <div class="someContent">
+          <p>very pretty</p>
+          <button>hallo</button>
+        </div>
+      </template>
+    </MoveResize>
   </div>
 </template>
 
@@ -27,6 +34,12 @@ export default {
 * {
   margin: 0;
   padding: 0;
+}
+
+.someContent {
+  height: 100%;
+  width: 100%;
+  background-color: saddlebrown;
 }
 
 </style>

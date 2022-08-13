@@ -1,21 +1,30 @@
 <template>
+  <button @click="dynamicallyCreateTile">Add</button>
   <div
   class="MoveResize"
   @mouseleave="stopDragWhenMouseOutsideFunc"
-  ref="drag-parent">
+  ref="drag-parent"
+  @click.shift="dragEnabled = !dragEnabled"
+  >
   
     <div
     v-for="(tile, ti) in posData" :key="ti"
-    :class="['resizable', `tile-${ti}`]"
+    :class="['resizable', `tile-${ti}`, {disableTileBorder: !resizeEnabled}]"
+    :ref="`drag-${ti}`"
     @mousedown="startDrag($event, ti)"
     :style="[
-      {top: `${getDefaultPos(posData[ti].y)}px`},
-      {left: `${getDefaultPos(posData[ti].x)}px`},
+      {top: `${getDefaultPos(posData[ti].y, 'y')}px`},
+      {left: `${getDefaultPos(posData[ti].x, 'x')}px`},
       {width: `${posData[ti].w}px`},
       {height: `${posData[ti].h}px`},
       {zIndex: curSelTileIndex == ti? 1000 : 1}
-    ]"
-    :ref="`drag-${ti}`">
+    ]">
+      <!-- <div class="caption"></div> -->
+      <div class="content">
+        <slot name="hey"></slot>
+      </div>
+
+      <!-- RESIZE HANDLES -->
       <div
       class='resizers'
       >
@@ -27,8 +36,6 @@
           @mouseup="resizeHandleDown = false">
         </div>
       </div>
-      <!-- <div class="caption"></div> -->
-      <slot class="content"></slot>
     </div>
 
   </div>
@@ -42,6 +49,7 @@ export default {
       handles: ['top-left', 'top-right', 'bottom-right', 'bottom-left'],
       // temp
       resizeHandleDown: false,
+      curDraggingTime: 0,
       // data
       positions: {
         clientX: undefined,
@@ -51,14 +59,15 @@ export default {
       },
       curSelTileIndex: 0,
       posData: [
-        {x: 0, y: 0, w: 100, h: 100},
-        {x: 100, y: 100, w: 150, h: 100}
+        {x: 50, y: 0, w: 100, h: 100},
+        {x: 100, y: 200, w: 150, h: 200}
       ],
+      parentViewportOffset: {x: 0, y: 0},
       // props
       grid: [1, 1], // [px, px]
       allowClickThrough: true,
       dragEnabled: true,
-      resizeEnabled: true,
+      resizeEnabled: false,
       preventLeavingParent: true,
       stopDragWhenMouseOutside: true,
       allowDragBelowBottom: false
@@ -68,13 +77,23 @@ export default {
 
   },
   methods: {
-    getDefaultPos(pos) {
+    dynamicallyCreateTile() {
+      this.posData.push({
+        x: this.parentViewportOffset.x,
+        y: this.parentViewportOffset.y,
+        w: 100,
+        h: 100
+      })
+    },
+    convertToPx(num) {
+      return num + 'px'
+    },
+    getDefaultPos(pos, direction) {
       // fixes position when X or Y greater than 0
-      // replace 50 with offset of parent!!!
-      // const maxChildPosFromTop = parentHeight - elementHeight
+      const offsetVal = direction == 'x'? this.parentViewportOffset.x: this.parentViewportOffset.y
 
-      if (pos > 0) return (pos - 50) < 0 ? 0 : pos - 50 
-
+      if (pos > 0) return (pos - offsetVal) < 0 ? 0 : pos - offsetVal 
+    
       return pos
     },
     startDrag(e, tileIndex) {
@@ -135,23 +154,26 @@ export default {
           elementRef.style.left = maxChildPosFromLeft + 'px'
         }
       }
-    
+
       // console.log('top', newTop)
       // console.log('left', newLeft)
     },
     stopDrag(e) {
-      const lastPosAndSize = e.target.getBoundingClientRect()
-      console.log(lastPosAndSize)
-      
-      this.posData[this.curSelTileIndex] = {
-        x: lastPosAndSize.x,
-        y: lastPosAndSize.y,
-        w: lastPosAndSize.width,
-        h: lastPosAndSize.height
+      // drag element refs
+      const elementRef = this.$refs[`drag-${this.curSelTileIndex}`][0]
+      const lastPosAndSize = {
+        x: elementRef.offsetLeft + this.parentViewportOffset.x,
+        y: elementRef.offsetTop + this.parentViewportOffset.y,
+        w: elementRef.offsetWidth,
+        h: elementRef.offsetHeight
       }
+      
+      this.posData[this.curSelTileIndex] = {...lastPosAndSize}
 
       document.onmouseup = null
       document.onmousemove = null
+
+      this.curDraggingTime = 0
     },
     stopDragWhenMouseOutsideFunc() {
       if (this.stopDragWhenMouseOutside) {
@@ -161,6 +183,9 @@ export default {
     }
   },
   mounted() {
+    const parentElementRef = this.$refs['drag-parent']
+    this.parentViewportOffset = {x: parentElementRef.offsetLeft, y: parentElementRef.offsetTop}
+
     const makeDivResizable = (div) => {
       const element = document.querySelector(div)
       const resizers = document.querySelectorAll(div + ' .resizer')
@@ -279,18 +304,17 @@ export default {
   position: absolute;
 }
 
-.resizable .resizers{
+.resizable .resizers {
   width: 100%;
   height: 100%;
   border: 3px solid #FF4500;
   box-sizing: border-box;
 }
 
-.resizable .resizers .resizer{
+.resizable .resizers .resizer {
   width: 10px;
   height: 10px;
   background: black;
-  border: 2px solid #FF4500;
   position: absolute;
 }
 
@@ -317,11 +341,11 @@ export default {
 
 .content {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: seagreen;
+  top: 3px;
+  left: 3px;
+  width: calc(100% - 6px);
+  height: calc(100% - 6px);
+  // background-color: seagreen;
 }
 
 </style>
