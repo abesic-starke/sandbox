@@ -61,14 +61,14 @@ export default {
           x: 150,
           y: 250,
           w: 150,
-          h: 150
+          h: 160
         },
         {
           type: 'button',
           x: 0,
           y: 0,
           w: 100,
-          h: 100
+          h: 120
         }
       ]
     }
