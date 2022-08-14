@@ -14,10 +14,10 @@
     @mousedown="startDrag($event, ti)"
     @click="selectTile(ti)"
     :style="[
-      {top: px(getDefaultPos(tiles[ti].y, 'y'))},
-      {left: px(getDefaultPos(tiles[ti].x, 'x'))},
-      {width: px(tiles[ti].w)},
-      {height: px(tiles[ti].h)},
+      {top: `${getDefaultPos(tiles[ti].y, 'y')}px`},
+      {left: `${getDefaultPos(tiles[ti].x, 'x')}px`},
+      {width: `${tiles[ti].w}px`},
+      {height: `${tiles[ti].h}px`},
       {zIndex: curSelTileIndex == ti? 1000 : 1}
     ]">
       <!-- <div class="caption"></div> -->
@@ -33,8 +33,8 @@
           v-show="resizeEnabled"
           v-for="handle in handles" :key="handle"
           :class="['resizer', handle]"
-          @mousedown="resizeHandleDown = true"
-          @mouseup="resizeHandleDown = false">
+          @mousedown="selectTile(ti); resizeHandleDown = true"
+          @mouseup="selectTile(ti); resizeHandleDown = false; stopDrag()">
         </div>
       </div>
 
@@ -49,6 +49,7 @@
 export default {
   name: 'MoveResize',
   props: ['tileData'],
+  emits: ['syncData'],
   data() {
     return {
       handles: ['top-left', 'top-right', 'bottom-right', 'bottom-left'],
@@ -94,7 +95,11 @@ export default {
         h: 100
       })
 
-      this.syncData()
+      this.$nextTick(() => {
+        this.makeDivResizable(`.tile-${this.tiles.length}`)
+
+        this.syncData()
+      })
     },
     px(num) {
       return num + 'px'
@@ -148,8 +153,8 @@ export default {
       const parentWidth = parentElementRef.offsetWidth
       const parentHeight = parentElementRef.offsetHeight
 
-      elementRef.style.top = this.px(newTop)
-      elementRef.style.left = this.px(newLeft)
+      elementRef.style.top = newTop + 'px'
+      elementRef.style.left = newLeft + 'px'
 
       if (this.preventLeavingParent) {
         // prevent leaving top
@@ -159,12 +164,12 @@ export default {
         // prevent leaving bottom
         const maxChildPosFromTop = parentHeight - elementHeight
         if (newTop > maxChildPosFromTop && !this.allowDragBelowBottom) {
-          elementRef.style.top = this.px(maxChildPosFromTop)
+          elementRef.style.top = maxChildPosFromTop + 'px'
         }
         // prevent leaving right
         const maxChildPosFromLeft = parentWidth - elementWidth
         if (newLeft > maxChildPosFromLeft) {
-          elementRef.style.left = this.px(maxChildPosFromLeft)
+          elementRef.style.left = maxChildPosFromLeft + 'px'
         }
       }
 
@@ -194,13 +199,8 @@ export default {
     },
     syncData() {
       this.$emit('syncData', this.tiles)
-    }
-  },
-  mounted() {
-    const parentElementRef = this.$refs['drag-parent']
-    this.parentViewportOffset = {x: parentElementRef.offsetLeft, y: parentElementRef.offsetTop}
-
-    const makeDivResizable = (div) => {
+    },
+    makeDivResizable(div) {
       const element = document.querySelector(div)
       const resizers = document.querySelectorAll(div + ' .resizer')
 
@@ -239,10 +239,10 @@ export default {
             const width = startWidth + (e.pageX - startMouseX)
             const height = startHeight + (e.pageY - startMouseY)
             if (width > minSize) {
-              element.style.width = this.px(width)
+              element.style.width = width + 'px'
             }
             if (height > minSize) {
-              element.style.height = this.px(height)
+              element.style.height = height + 'px'
             }
           }
           // RESIZE BOTTOM LEFT
@@ -250,11 +250,11 @@ export default {
             const height = startHeight + (e.pageY - startMouseY)
             const width = startWidth - (e.pageX - startMouseX)
             if (height > minSize) {
-              element.style.height = this.px(height)
+               element.style.height = height + 'px'
             }
             if (width > minSize) {
-              element.style.width = this.px(width)
-              element.style.left = startX + (e.pageX - startMouseX) - this.px(parentViewportOffset.left)
+              element.style.width = width + 'px'
+              element.style.left = startX + (e.pageX - startMouseX) - parentViewportOffset.left + 'px'
             }
           }
           // RESIZE TOP RIGHT
@@ -262,11 +262,11 @@ export default {
             const width = startWidth + (e.pageX - startMouseX)
             const height = startHeight - (e.pageY - startMouseY)
             if (width > minSize) {
-              element.style.width = this.px(width)
+              element.style.width = width + 'px'
             }
             if (height > minSize) {
-              element.style.height = this.px(height)
-              element.style.top = startY + (e.pageY - startMouseY) - this.px(parentViewportOffset.top)
+              element.style.height = height + 'px'
+              element.style.top = startY + (e.pageY - startMouseY) - parentViewportOffset.top + 'px'
             }
           }
           // RESIZE TOP LEFT
@@ -274,12 +274,12 @@ export default {
             const width = startWidth - (e.pageX - startMouseX)
             const height = startHeight - (e.pageY - startMouseY)
             if (width > minSize) {
-              element.style.width = this.px(width)
-              element.style.left = startX + (e.pageX - startMouseX) - this.px(parentViewportOffset.left)
+              element.style.width = width + 'px'
+              element.style.left = startX + (e.pageX - startMouseX) - parentViewportOffset.left + 'px'
             }
             if (height > minSize) {
-              element.style.height = this.px(height)
-              element.style.top = startY + (e.pageY - startMouseY) - this.px(parentViewportOffset.top)
+              element.style.height = height + 'px'
+              element.style.top = startY + (e.pageY - startMouseY) - parentViewportOffset.top + 'px'
             }
           }
         }
@@ -289,9 +289,13 @@ export default {
         }
       }
     }
+  },
+  mounted() {
+    const parentElementRef = this.$refs['drag-parent']
+    this.parentViewportOffset = {x: parentElementRef.offsetLeft, y: parentElementRef.offsetTop}
 
     this.tiles.forEach((tile, tileIndex) => {
-      makeDivResizable(`.tile-${tileIndex}`)
+      this.makeDivResizable(`.tile-${tileIndex}`)
     })
 
     // handle deleting field
