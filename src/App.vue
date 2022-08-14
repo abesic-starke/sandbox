@@ -17,6 +17,10 @@
         <div class="someContent" v-if="field.type == 'input'">
           <input placeholder="Value">
         </div>
+
+        <div class="someContent" v-if="field.type == 'image'">
+          <img src="https://picsum.photos/1920/1080">
+        </div>
       </template>
 
     </MoveResize>
@@ -41,11 +45,11 @@ export default {
           h: 40
         },
         {
-          type: 'input',
+          type: 'image',
           x: 0,
           y: 200,
-          w: 150,
-          h: 40
+          w: 192,
+          h: 108
         },
         {
           type: 'text',
@@ -91,6 +95,10 @@ export default {
   height: 100%;
   width: 100%;
   background-color: saddlebrown;
+  img {
+    max-width: 100%;
+    max-height: 100%;
+  }
 }
 
 </style>
