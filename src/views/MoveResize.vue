@@ -75,7 +75,8 @@ export default {
       preventLeavingParent: true,
       stopDragWhenMouseOutside: true,
       allowDragBelowBottom: false,
-      readOnly: false
+      readOnly: false,
+      keepAspectRatio: true
     }
   },
   components: {
@@ -231,8 +232,10 @@ export default {
         
         const resize = (e) =>  {
           // these are relative to the viewport, i.e. the window
-          const parentViewportOffset = this.$refs['drag-parent'].getBoundingClientRect()
-          console.warn(parentViewportOffset.top, parentViewportOffset.left)
+          const parentViewportOffset = {
+            top: this.$refs['drag-parent'].offsetTop,
+            left: this.$refs['drag-parent'].offsetLeft
+          }
           
           // RESIZE BOTTOM RIGHT
           if (currentResizer.classList.contains('bottom-right')) {
@@ -242,6 +245,13 @@ export default {
               element.style.width = width + 'px'
             }
             if (height > minSize) {
+              // resize with keeping the aspect ratio
+              if (this.keepAspectRatio) {
+                const aspectRatio = this.tiles[this.curSelTileIndex].aspectRatio
+                return element.style.height = Math.round(width * aspectRatio) + 'px'
+              } 
+
+              // resize without keeping it
               element.style.height = height + 'px'
             }
           }
@@ -250,7 +260,7 @@ export default {
             const height = startHeight + (e.pageY - startMouseY)
             const width = startWidth - (e.pageX - startMouseX)
             if (height > minSize) {
-               element.style.height = height + 'px'
+              element.style.height = height + 'px'
             }
             if (width > minSize) {
               element.style.width = width + 'px'
@@ -374,7 +384,7 @@ export default {
 }
 
 .enableBorder {
-  outline: 2px solid #FF4500;
+  outline: 2px dashed #FF4500;
 }
 
 .readOnlyOverlay {
