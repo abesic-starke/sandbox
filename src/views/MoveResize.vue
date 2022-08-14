@@ -4,8 +4,7 @@
   class="MoveResize"
   @mouseleave="stopDragWhenMouseOutsideFunc"
   ref="drag-parent"
-  @click.shift="dragEnabledDyn = !dragEnabledDyn"
-  @click.ctrl="resizeEnabledDyn = !resizeEnabledDyn">
+  @click.shift="stop">
   
     <div
     v-for="(tile, ti) in tiles" :key="ti"
@@ -33,14 +32,14 @@
       <!-- RESIZE HANDLES -->
       <div
       class='resizers'
-      v-show="curSelTileIndex == ti"
+      v-show="curSelTileIndex == ti && !isDragging"
       >
         <div
           v-show="resizeEnabledDyn"
           v-for="handle in handles" :key="handle"
           :class="['resizer', handle, {tileSelectedHandle: curSelTileIndex == ti}]"
-          @mousedown="selectTile(ti); resizeHandleDown = true"
-          @mouseup="selectTile(ti); resizeHandleDown = false; stopDrag()">
+          @mousedown="resizeHandleDown = true"
+          @mouseup="resizeHandleDown = false; stopDrag()">
         </div>
       </div>
 
@@ -97,7 +96,6 @@ export default {
       handles: ['top-left', 'top-right', 'bottom-right', 'bottom-left'],
       // temp
       resizeHandleDown: false,
-      // data
       positions: {
         clientX: undefined,
         clientY: undefined,
@@ -105,8 +103,11 @@ export default {
         movementY: 0
       },
       curSelTileIndex: 0,
-      tiles: [],
       parentViewportOffset: {x: 0, y: 0},
+      doubleClicks: [],
+      isDragging: false,
+      // data
+      tiles: [],
       // props
       stopDragWhenMouseOutside: true,
       dragEnabledDyn: JSON.parse(this.dragEnabled),
@@ -162,7 +163,21 @@ export default {
       return pos
     },
     selectTile(tileIndex) {
+      console.log('select')
       this.curSelTileIndex = tileIndex
+
+      // if (this.doubleClicks[tileIndex] == 0) {
+      //   this.doubleClicks[tileIndex] = 1
+      //   this.dragEnabledDyn = true
+      //   this.resizeEnabledDyn = true
+      // }
+      // else {
+      //   this.doubleClicks[tileIndex] = 0
+      //   this.dragEnabledDyn = false
+      //   this.resizeEnabledDyn = false
+      // }
+
+      // console.log(this.doubleClicks[tileIndex])
     },
     startDrag(e, tileIndex) {
       // Check if dragging is enabled
@@ -170,7 +185,7 @@ export default {
       // Check if user isn't currently resizing
       if (this.resizeHandleDown) return
 
-      this.selectTile(tileIndex)
+      this.isDragging = true
 
       e.preventDefault()
       // get the mouse cursor position at startup:
@@ -250,6 +265,7 @@ export default {
       document.onmousemove = null
 
       this.syncData()
+      this.isDragging = false
     },
     stopDragWhenMouseOutsideFunc() {
       if (this.stopDragWhenMouseOutside) {
@@ -365,6 +381,8 @@ export default {
       this.tiles.forEach((tile, tileIndex) => {
         this.makeDivResizable(`.tile-${tileIndex}`)
       })
+
+      this.doubleClicks = new Array(this.tiles.length).fill(0)
     }
   },
   mounted() {
