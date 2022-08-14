@@ -33,6 +33,7 @@
       <!-- RESIZE HANDLES -->
       <div
       class='resizers'
+      v-show="curSelTileIndex == ti"
       >
         <div
           v-show="resizeEnabledDyn"
@@ -56,6 +57,11 @@ export default {
   props: {
     tileData: Array,
     active: Boolean,
+    // auto keeping aspect for bottom-right handle when tile.aspectRatio exists
+    keepAspectRatio: {
+      type: Boolean,
+      default: true
+    },
     readOnly: Boolean,
     dragEnabled: {
       type: Boolean,
@@ -69,6 +75,7 @@ export default {
       type: Boolean,
       default: true
     },
+    allowDragBelowBottom: Boolean,
     minWidth: {
       type: Number,
       default: 100
@@ -76,14 +83,7 @@ export default {
     minHeight: {
       type: Number,
       default: 100
-    },
-    // auto keeping aspect for bottom-right handle when tile.aspectRatio exists
-    keepAspectRatio: {
-      type: Boolean,
-      default: true
-    },
-    allowDragBelowBottom: Boolean
-    
+    }
   },
   emits: ['syncData'],
   data() {
@@ -117,6 +117,9 @@ export default {
       this.dragEnabledDyn = !bool
       this.resizeEnabledDyn = !bool
     }
+  },
+  components: {
+
   },
   methods: {
     deleteTile() {
@@ -241,6 +244,7 @@ export default {
       const element = document.querySelector(className)
       const resizers = document.querySelectorAll(className + ' .resizer')
 
+      const minSize = 70
       let startWidth = 0
       let startHeight = 0
       let startX = 0
@@ -276,10 +280,10 @@ export default {
           if (currentResizer.classList.contains('bottom-right')) {
             const width = startWidth + (e.pageX - startMouseX)
             const height = startHeight + (e.pageY - startMouseY)
-            if (width > this.minWidth) {
+            if (width > minSize) {
               element.style.width = width + 'px'
             }
-            if (height > this.minHeight) {
+            if (height > minSize) {
               // resize with keeping the aspect ratio
               if (this.keepAspectRatio) {
                 const aspectRatio = this.tiles[this.curSelTileIndex].aspectRatio
@@ -297,10 +301,10 @@ export default {
           else if (currentResizer.classList.contains('bottom-left')) {
             const height = startHeight + (e.pageY - startMouseY)
             const width = startWidth - (e.pageX - startMouseX)
-            if (height > this.minHeight) {
+            if (height > minSize) {
               element.style.height = height + 'px'
             }
-            if (width > this.minWidth) {
+            if (width > minSize) {
               element.style.width = width + 'px'
               element.style.left = startX + (e.pageX - startMouseX) - parentViewportOffset.left + 'px'
             }
@@ -309,10 +313,10 @@ export default {
           else if (currentResizer.classList.contains('top-right')) {
             const width = startWidth + (e.pageX - startMouseX)
             const height = startHeight - (e.pageY - startMouseY)
-            if (width > this.minWidth) {
+            if (width > minSize) {
               element.style.width = width + 'px'
             }
-            if (height > this.minHeight) {
+            if (height > minSize) {
               element.style.height = height + 'px'
               element.style.top = startY + (e.pageY - startMouseY) - parentViewportOffset.top + 'px'
             }
@@ -321,11 +325,11 @@ export default {
           else {
             const width = startWidth - (e.pageX - startMouseX)
             const height = startHeight - (e.pageY - startMouseY)
-            if (width > this.minWidth) {
+            if (width > minSize) {
               element.style.width = width + 'px'
               element.style.left = startX + (e.pageX - startMouseX) - parentViewportOffset.left + 'px'
             }
-            if (height > this.minHeight) {
+            if (height > minSize) {
               element.style.height = height + 'px'
               element.style.top = startY + (e.pageY - startMouseY) - parentViewportOffset.top + 'px'
             }
