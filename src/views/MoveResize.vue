@@ -9,7 +9,12 @@
   
     <div
     v-for="(tile, ti) in tiles" :key="ti"
-    :class="['resizable', `tile-${ti}`, {enableBorder: resizeEnabled || dragEnabled}]"
+    :class="[
+      'resizable',
+      `tile-${ti}`,
+      {enableBorder: resizeEnabled || dragEnabled},
+      {tileSelected: curSelTileIndex == ti}
+    ]"
     :ref="`drag-${ti}`"
     @mousedown="startDrag($event, ti)"
     @click="selectTile(ti)"
@@ -32,7 +37,7 @@
         <div
           v-show="resizeEnabled"
           v-for="handle in handles" :key="handle"
-          :class="['resizer', handle]"
+          :class="['resizer', handle, {tileSelectedHandle: curSelTileIndex == ti}]"
           @mousedown="selectTile(ti); resizeHandleDown = true"
           @mouseup="selectTile(ti); resizeHandleDown = false; stopDrag()">
         </div>
@@ -248,7 +253,10 @@ export default {
               // resize with keeping the aspect ratio
               if (this.keepAspectRatio) {
                 const aspectRatio = this.tiles[this.curSelTileIndex].aspectRatio
-                return element.style.height = Math.round(width * aspectRatio) + 'px'
+                
+                if (aspectRatio) {
+                  return element.style.height = Math.round(width * aspectRatio) + 'px'
+                }
               } 
 
               // resize without keeping it
@@ -385,6 +393,14 @@ export default {
 
 .enableBorder {
   outline: 2px dashed #FF4500;
+}
+
+.tileSelected {
+  outline-color: yellow !important;
+}
+
+.tileSelectedHandle {
+  border-color: yellow !important;
 }
 
 .readOnlyOverlay {
