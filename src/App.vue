@@ -4,6 +4,7 @@
     <MoveResize
       :active="active"
       :tileData="fields"
+      :gridSize="4"
       @syncData="fields = $event">
 
       <template v-for="(field, i) in fields" :key="i" v-slot:[i]>
