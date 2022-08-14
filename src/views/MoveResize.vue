@@ -200,10 +200,9 @@ export default {
     syncData() {
       this.$emit('syncData', this.tiles)
     },
-    makeDivResizable(div) {
-      console.log(div)
-      const element = document.querySelector(div)
-      const resizers = document.querySelectorAll(div + ' .resizer')
+    makeDivResizable(className) {
+      const element = document.querySelector(className)
+      const resizers = document.querySelectorAll(className + ' .resizer')
 
       const minSize = 20
       let startWidth = 0
