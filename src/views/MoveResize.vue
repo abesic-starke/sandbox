@@ -96,7 +96,7 @@ export default {
       })
 
       this.$nextTick(() => {
-        this.makeDivResizable(`.tile-${this.tiles.length}`)
+        this.makeDivResizable(`.tile-${this.tiles.length-1}`)
 
         this.syncData()
       })
@@ -201,6 +201,7 @@ export default {
       this.$emit('syncData', this.tiles)
     },
     makeDivResizable(div) {
+      console.log(div)
       const element = document.querySelector(div)
       const resizers = document.querySelectorAll(div + ' .resizer')
 
