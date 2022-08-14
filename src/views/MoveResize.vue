@@ -56,11 +56,6 @@ export default {
   props: {
     tileData: Array,
     active: Boolean,
-    // auto keeping aspect for bottom-right handle when tile.aspectRatio exists
-    keepAspectRatio: {
-      type: Boolean,
-      default: true
-    },
     readOnly: Boolean,
     dragEnabled: {
       type: Boolean,
@@ -74,7 +69,6 @@ export default {
       type: Boolean,
       default: true
     },
-    allowDragBelowBottom: Boolean,
     minWidth: {
       type: Number,
       default: 100
@@ -82,7 +76,14 @@ export default {
     minHeight: {
       type: Number,
       default: 100
-    }
+    },
+    // auto keeping aspect for bottom-right handle when tile.aspectRatio exists
+    keepAspectRatio: {
+      type: Boolean,
+      default: true
+    },
+    allowDragBelowBottom: Boolean
+    
   },
   emits: ['syncData'],
   data() {
