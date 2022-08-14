@@ -1,6 +1,8 @@
 <template>
   <div class="App">
+    <button @click="active = !active">reactivate</button>
     <MoveResize
+      :active="active"
       :tileData="fields"
       @syncData="fields = $event">
 
@@ -36,6 +38,7 @@ export default {
   },
   data() {
     return {
+      active: true,
       fields: [
         {
           type: 'input',

@@ -4,15 +4,15 @@
   class="MoveResize"
   @mouseleave="stopDragWhenMouseOutsideFunc"
   ref="drag-parent"
-  @click.shift="dragEnabled = !dragEnabled"
-  @click.ctrl="resizeEnabled = !resizeEnabled">
+  @click.shift="dragEnabledDyn = !dragEnabledDyn"
+  @click.ctrl="resizeEnabledDyn = !resizeEnabledDyn">
   
     <div
     v-for="(tile, ti) in tiles" :key="ti"
     :class="[
       'resizable',
       `tile-${ti}`,
-      {enableBorder: resizeEnabled || dragEnabled},
+      {enableBorder: resizeEnabledDyn || dragEnabledDyn},
       {tileSelected: curSelTileIndex == ti}
     ]"
     :ref="`drag-${ti}`"
@@ -35,7 +35,7 @@
       class='resizers'
       >
         <div
-          v-show="resizeEnabled"
+          v-show="resizeEnabledDyn"
           v-for="handle in handles" :key="handle"
           :class="['resizer', handle, {tileSelectedHandle: curSelTileIndex == ti}]"
           @mousedown="selectTile(ti); resizeHandleDown = true"
@@ -53,7 +53,29 @@
 <script>
 export default {
   name: 'MoveResize',
-  props: ['tileData'],
+  props: {
+    tileData: Array,
+    active: Boolean,
+    // auto keeping aspect for bottom-right handle when tile.aspectRatio exists
+    keepAspectRatio: {
+      type: Boolean,
+      default: true
+    },
+    readOnly: Boolean,
+    dragEnabled: {
+      type: Boolean,
+      default: true
+    },
+    resizeEnabled: {
+      type: Boolean,
+      default: true
+    },
+    preventLeavingParent: {
+      type: Boolean,
+      default: true
+    },
+    allowDragBelowBottom: Boolean
+  },
   emits: ['syncData'],
   data() {
     return {
@@ -68,21 +90,20 @@ export default {
         movementY: 0
       },
       curSelTileIndex: 0,
-      tiles: [
-        
-      ],
+      tiles: [],
       parentViewportOffset: {x: 0, y: 0},
       // props
       grid: [1, 1], // [px, px]
-      allowClickThrough: true,
-      dragEnabled: true,
-      resizeEnabled: true,
-      preventLeavingParent: true,
       stopDragWhenMouseOutside: true,
-      allowDragBelowBottom: false,
-      readOnly: false,
-      keepAspectRatio: true
+      dragEnabledDyn: JSON.parse(this.dragEnabled),
+      resizeEnabledDyn: JSON.parse(this.resizeEnabled)
     }
+  },
+  watch: {
+    active(bool) {
+      this.dragEnabledDyn = bool
+      this.resizeEnabledDyn = bool
+    } 
   },
   components: {
 
@@ -123,7 +144,7 @@ export default {
     },
     startDrag(e, tileIndex) {
       // Check if dragging is enabled
-      if (!this.dragEnabled) return
+      if (!this.dragEnabledDyn) return
       // Check if user isn't currently resizing
       if (this.resizeHandleDown) return
 
@@ -253,7 +274,7 @@ export default {
               // resize with keeping the aspect ratio
               if (this.keepAspectRatio) {
                 const aspectRatio = this.tiles[this.curSelTileIndex].aspectRatio
-                
+
                 if (aspectRatio) {
                   return element.style.height = Math.round(width * aspectRatio) + 'px'
                 }
@@ -324,6 +345,12 @@ export default {
     })
   },
   created() {
+    // at runtime, we also have one watcher for dynamic
+    if (!this.active) {
+      this.dragEnabledDyn = false
+      this.resizeEnabledDyn = false
+    }
+
     this.tiles = this.tileData
   }
 }
