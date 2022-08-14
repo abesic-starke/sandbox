@@ -103,7 +103,11 @@ export default {
     active(bool) {
       this.dragEnabledDyn = bool
       this.resizeEnabledDyn = bool
-    } 
+    },
+    readOnly(bool) {
+      this.dragEnabledDyn = !bool
+      this.resizeEnabledDyn = !bool
+    }
   },
   components: {
 
@@ -345,13 +349,18 @@ export default {
     })
   },
   created() {
+    this.tiles = this.tileData
+
     // at runtime, we also have one watcher for dynamic
     if (!this.active) {
       this.dragEnabledDyn = false
       this.resizeEnabledDyn = false
     }
 
-    this.tiles = this.tileData
+    if (this.readOnly) {
+      this.dragEnabledDyn = false
+      this.resizeEnabledDyn = false
+    }
   }
 }
 </script>
@@ -409,7 +418,7 @@ export default {
   cursor: nwse-resize;
 }
 
-.content, .readOnlyOverlay {
+.content {
   position: relative;
   top: 0;
   left: 0;
@@ -431,6 +440,11 @@ export default {
 }
 
 .readOnlyOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background-color: rgba(255,0,0,.25);
 }
 
