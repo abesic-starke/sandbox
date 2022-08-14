@@ -54,7 +54,7 @@ export default {
           y: 200,
           w: 192,
           h: 108,
-          aspectRatio: 0.5625
+          aspectRatio: 108/192
         },
         {
           type: 'text',
