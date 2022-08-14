@@ -21,7 +21,7 @@
         </div>
 
         <div class="someContent" v-if="field.type == 'image'">
-          <img src="https://picsum.photos/1920/1080">
+          <img class="image" src="https://picsum.photos/1920/1080">
         </div>
       </template>
 
@@ -102,6 +102,7 @@ export default {
   img {
     max-width: 100%;
     max-height: 100%;
+    object-fit:cover;
   }
 }
 

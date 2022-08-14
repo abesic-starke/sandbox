@@ -83,6 +83,12 @@ export default {
     minHeight: {
       type: Number,
       default: 100
+    },
+    // 1 means the grid is disabled because it align normally every 1 pixel
+    // more than that and we have a pixel grid
+    gridSize: {
+      type: Number,
+      default: 1
     }
   },
   emits: ['syncData'],
@@ -102,13 +108,19 @@ export default {
       tiles: [],
       parentViewportOffset: {x: 0, y: 0},
       // props
-      grid: [1, 1], // [px, px]
       stopDragWhenMouseOutside: true,
       dragEnabledDyn: JSON.parse(this.dragEnabled),
       resizeEnabledDyn: JSON.parse(this.resizeEnabled)
     }
   },
   watch: {
+    fieldData(data) {
+      this.tiles = data
+
+      this.$nextTick(() => {
+        this.makeAllTilesResizable()
+      })
+    },
     active(bool) {
       this.dragEnabledDyn = bool
       this.resizeEnabledDyn = bool
@@ -117,9 +129,6 @@ export default {
       this.dragEnabledDyn = !bool
       this.resizeEnabledDyn = !bool
     }
-  },
-  components: {
-
   },
   methods: {
     deleteTile() {
@@ -172,10 +181,10 @@ export default {
     },
     elementDrag(e) {
       e.preventDefault()
-      this.positions.movementX = this.positions.clientX - e.clientX
-      this.positions.movementY = this.positions.clientY - e.clientY
-      this.positions.clientX = e.clientX
-      this.positions.clientY = e.clientY
+      this.positions.movementX = this.positions.clientX - (Math.round(e.clientX / this.gridSize) * this.gridSize)
+      this.positions.movementY = this.positions.clientY - (Math.round(e.clientY / this.gridSize) * this.gridSize)
+      this.positions.clientX = (Math.round(e.clientX / this.gridSize) * this.gridSize)
+      this.positions.clientY = (Math.round(e.clientY / this.gridSize) * this.gridSize)
 
       const tileRef = this.$refs[`drag-${this.curSelTileIndex}`][0]
 
@@ -224,7 +233,18 @@ export default {
       tileDataRef.x = elRef.offsetLeft + this.parentViewportOffset.x
       tileDataRef.y = elRef.offsetTop + this.parentViewportOffset.y
       tileDataRef.w = elRef.offsetWidth
-      tileDataRef.h = elRef.offsetHeight
+
+      // if (this.keepAspectRatio) {
+      //   const aspectRatio = this.tiles[this.curSelTileIndex].aspectRatio
+
+      //   if (aspectRatio) {
+      //     tileDataRef.h = Math.round(elRef.offsetWidth * aspectRatio)
+      //   } else {
+      //     tileDataRef.h = elRef.offsetHeight
+      //   }
+      // } else {
+        tileDataRef.h = elRef.offsetHeight
+      // }
 
       document.onmouseup = null
       document.onmousemove = null
@@ -285,13 +305,13 @@ export default {
             }
             if (height > minSize) {
               // resize with keeping the aspect ratio
-              if (this.keepAspectRatio) {
-                const aspectRatio = this.tiles[this.curSelTileIndex].aspectRatio
+              // if (this.keepAspectRatio) {
+              //   const aspectRatio = this.tiles[this.curSelTileIndex].aspectRatio
 
-                if (aspectRatio) {
-                  return element.style.height = Math.round(width * aspectRatio) + 'px'
-                }
-              } 
+              //   if (aspectRatio) {
+              //     return element.style.height = Math.round(width * aspectRatio) + 'px'
+              //   }
+              // } 
 
               // resize without keeping it
               element.style.height = height + 'px'
@@ -340,15 +360,18 @@ export default {
           window.removeEventListener('mousemove', resize)
         }
       }
+    },
+    makeAllTilesResizable() {
+      this.tiles.forEach((tile, tileIndex) => {
+        this.makeDivResizable(`.tile-${tileIndex}`)
+      })
     }
   },
   mounted() {
     const parentElementRef = this.$refs['drag-parent']
     this.parentViewportOffset = {x: parentElementRef.offsetLeft, y: parentElementRef.offsetTop}
 
-    this.tiles.forEach((tile, tileIndex) => {
-      this.makeDivResizable(`.tile-${tileIndex}`)
-    })
+    this.makeAllTilesResizable()
 
     // handle deleting field
     window.addEventListener('keyup', (e) => {
@@ -404,6 +427,12 @@ export default {
   background: black;
   border: 2px solid #FF4500;
   position: absolute;
+}
+
+.resizers {
+  width: 0 !important;
+  height: 0 !important;
+  background-color: seagreen;
 }
 
 .resizable .resizers .resizer.top-left {
