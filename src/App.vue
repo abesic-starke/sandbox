@@ -1,6 +1,6 @@
 <template>
   <div class="App">
-    <button @click="active = !active">reactivate</button>
+    <button @click="active = !active">Toggle editing</button>
     <MoveResize
       :active="active"
       :tileData="fields"
