@@ -1,11 +1,13 @@
 <template>
   <div class="App">
-    
-    <div
-    class="routePath"
-    v-for="route in routes" :key="route"
-    @click="goToRoute(route)">
-      <button>{{ route.name }}</button>
+
+    <div class="routePaths">
+      <button
+      v-for="route in routes"
+      :key="route"
+      @click="goToRoute(route)">
+        {{ route.name }}
+      </button>
     </div>
 
     <router-view />
@@ -45,6 +47,14 @@ export default {
 * {
   margin: 0;
   padding: 0;
+}
+
+.routePaths {
+  background-color: rgba(0,0,0,.2);
+  button {
+    margin: 5px;
+    padding: 3px 10px 3px 10px;
+  }
 }
 
 </style>
