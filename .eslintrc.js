@@ -16,6 +16,8 @@ module.exports = {
     'no-inner-declarations': 'off',
     'no-empty': 'off',
     'no-unused-vars': 'off',
-    'no-unreachable': 'off'
+    'no-unreachable': 'off',
+    'no-mixed-spaces-and-tabs': 'off',
+    'no-useless-escape': 'off'
   }
 }
