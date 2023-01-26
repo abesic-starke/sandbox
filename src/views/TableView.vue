@@ -1,8 +1,11 @@
 <template>
   <div class="TableView">
 
-    <div id="tableCon">
-      <Table width="250px" height="250px" />
+    <button @click="width += 50; reRender++">+</button>
+    <button @click="width -= 50; reRender++">-</button>
+
+    <div id="tableCon" :style="{width: `${width}px`}">
+      <Table />
     </div>
 
   </div>
@@ -12,7 +15,14 @@
 import Table from '@/components/Table'
 
 export default {
-    components: {Table}
+  components: {Table},
+  data() {
+    return {
+      width: 250,
+      height: 250,
+      reRender: 0
+    }
+  },
 }
 </script>
 
@@ -31,6 +41,11 @@ export default {
   width: 300px;
   height: 250px;
   background-color: darkslategrey;
+}
+
+button {
+  margin: 10px;
+  padding: 10px;
 }
 
 </style>

@@ -61,7 +61,9 @@
       <div id="buttons"></div>
     </div>
 
-    <div id="artificialScrollbar">
+    <div
+    id="artificialScrollbar"
+    :class="{hideArtificialScrollbar: !artificialScrollbarShown}">
       <div
         id="artificalScrollbarThumb"
         :style="{left: `${scrollbarThumbLeft}px`}"
@@ -110,7 +112,8 @@ export default {
         x: 0,
         y: 0
       },
-      mouseoverScrollbarThumb: false
+      mouseoverScrollbarThumb: false,
+      artificialScrollbarShown: false
     }
   },
   watch: {
@@ -157,16 +160,21 @@ export default {
     }
   },
   mounted() {
-    const headerLetterListEl = document.getElementById('headerLettersList')
-    const headerLetterListWidth = headerLetterListEl.scrollWidth
+    setInterval(() => {
+      const headerLetterListEl = document.getElementById('headerLettersList')
+      const headerLetterListWidth = headerLetterListEl.scrollWidth
 
-    const entireTableWidth = document.getElementById('Table').getBoundingClientRect().width
-    const rowsContentWidth = entireTableWidth - this.lettersAndNumberSize
+      const entireTableWidth = document.getElementById('Table').getBoundingClientRect().width
+      const rowsContentWidth = entireTableWidth - this.lettersAndNumberSize
 
-    const scrollbarWidth = rowsContentWidth - (headerLetterListWidth - rowsContentWidth)
+      const scrollbarWidth = rowsContentWidth - (headerLetterListWidth - rowsContentWidth)
+      // set artificial scrollbar thumb width
+      document.getElementById('artificalScrollbarThumb').style.width = scrollbarWidth + 'px'
 
-    console.warn(scrollbarWidth)
-    document.getElementById('artificalScrollbarThumb').style.width = scrollbarWidth + 'px'
+      console.log(scrollbarWidth, rowsContentWidth)
+      if (scrollbarWidth >= rowsContentWidth) this.artificialScrollbarShown = false
+      else this.artificialScrollbarShown = true
+    }, 16)
 
     // save mouse position
     const handleMouseMove = (e) => {
@@ -293,6 +301,10 @@ $defaultLetterWidth: 70px;
     background-color: seagreen;
     width: 50px;
   }
+}
+
+.hideArtificialScrollbar {
+  height: 0 !important;
 }
 
 // hide scrollbars
