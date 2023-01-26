@@ -162,14 +162,11 @@ export default {
 
     const entireTableWidth = document.getElementById('Table').getBoundingClientRect().width
     const rowsContentWidth = entireTableWidth - this.lettersAndNumberSize
-    const scrollbarEmptySpace = headerLetterListWidth - rowsContentWidth
 
-    console.log(headerLetterListWidth)
-    console.log(rowsContentWidth)
+    const scrollbarWidth = rowsContentWidth - (headerLetterListWidth - rowsContentWidth)
 
-    const scrollbarWidth = headerLetterListWidth - scrollbarEmptySpace
     console.warn(scrollbarWidth)
-    document.getElementById('artificalScrollbarThumb').style.width = 140 + 'px'
+    document.getElementById('artificalScrollbarThumb').style.width = scrollbarWidth + 'px'
 
     // save mouse position
     const handleMouseMove = (e) => {

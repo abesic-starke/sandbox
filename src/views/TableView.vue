@@ -28,7 +28,7 @@ export default {
   position: absolute;
   top: 150px;
   left: 150px;
-  width: 250px;
+  width: 300px;
   height: 250px;
   background-color: darkslategrey;
 }
