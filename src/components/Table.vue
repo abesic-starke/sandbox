@@ -135,18 +135,22 @@ export default {
 
         const tableEl = document.getElementById('Table').getBoundingClientRect()
         const tableOffsetLeft = tableEl.left
-        console.log(tableOffsetLeft)
+        // console.log(tableOffsetLeft)
 
         // initially set start position of scrollbar, on mousedown
         if (!this.scrollbarDragStartPosLeft) {
           this.scrollbarDragStartPosLeft = scrollbarThumbEl.offsetLeft + this.mousePos.x
         }
 
-        console.log(this.mousePos.x)
+        // console.log(this.mousePos.x)
 
         // set scrollbar controller position on mousemove
         const scrollbarThumbWidth = scrollbarThumbEl.getBoundingClientRect().width
         this.scrollbarThumbLeft = this.mousePos.x - tableOffsetLeft - ((scrollbarThumbWidth / 2) * 1.5)
+
+        // console.log(this.scrollbarThumbLeft)
+        if (this.scrollbarThumbLeft < 1) this.scrollbarThumbLeft = 0
+        // if (this.scrollbarThumbLeft > 1) this.scrollbarThumbLeft = 0
 
         // sync scrollbar position for letters
         const headerLetterListEl = document.getElementById('headerLettersList')
@@ -235,7 +239,6 @@ $defaultLetterWidth: 70px;
   width: 100%;
   height: calc(100% - #{$lettersAndNumberSize});
   overflow-y: overlay;
-
   #sideNumberList {
     float: left;
     position: relative;
@@ -292,13 +295,14 @@ $defaultLetterWidth: 70px;
   left: $lettersAndNumberSize;
   width: calc(100% - #{$lettersAndNumberSize});
   height: 10px;
-  background-color: red;
+  background-color: #121212;
   overflow: hidden;
   #artificalScrollbarThumb {
     position: absolute;
     left: 0;
     height: 100%;
-    background-color: seagreen;
+    border-radius: 4px;
+    background-color: grey;
     width: 50px;
   }
 }
