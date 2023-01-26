@@ -1,5 +1,6 @@
 import MoveResize from '../views/MoveResizeTest.vue'
 import TableScroll from '../views/TableScroll.vue'
+import TableView from '../views/TableView.vue'
 
 export default [
   {
@@ -8,8 +9,8 @@ export default [
     component: MoveResize
   },
   {
-    path: '/table-scroll',
-    name: 'table-scroll',
-    component: TableScroll
+    path: '/table',
+    name: 'table',
+    component: TableView
   }
 ]

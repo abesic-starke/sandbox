@@ -1,0 +1,44 @@
+@mixin shared {
+  --main-color: #6314e7;
+  --second-color: #8958dd;
+  --shadow-float: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+  --highlight-color: rgba(99, 20, 231, .1);
+  --strong-highlight-color: rgba(99, 20, 231, .3);
+  --box-shadow: rgba(0, 0, 0, 0.2) 0px 8px 24px;
+}
+
+:root {
+  @include shared;
+  --text-color: black;
+  --inverse-text-color: white;
+  --light-text-color: rgba(0,0,0,.8);
+  --lightest-text-color: rgba(0,0,0,.4);
+  --bg-color: white;
+  --second-bg-color: #fcfbfc;
+  --channels-bg-color: white;
+  --reverse-bg-color: #121212;
+  --bg-highlight: rgba(0,0,0,.25);
+  --light-bg-highlight: rgba(0,0,0,.15);
+  --lightest-bg-highlight: rgba(0,0,0,.05);
+  --outline: 1px solid rgba(0,0,0,.25);
+  --reverse-outline: 1px solid rgba(255,255,255,.25);
+  --strong-outline: 1px solid rgba(0,0,0,.35);
+}
+
+[theme="dark"] {
+  @include shared;
+  --text-color: white;
+  --inverse-text-color: black;
+  --light-text-color: rgba(255,255,255,.8);
+  --lightest-text-color: rgba(255,255,255,.4);
+  --bg-color: #121212;
+  --second-bg-color: #121212;
+  --channels-bg-color: rgb(59, 59, 59);
+  --reverse-bg-color: white;
+  --bg-highlight: rgba(255,255,255,.25);
+  --light-bg-highlight: rgba(255,255,255,.15);
+  --lightest-bg-highlight: rgba(255,255,255,.05);
+  --outline: 1px solid rgba(255,255,255,.25);
+  --reverse-outline: 1px solid rgba(0,0,0,.25);
+  --strong-outline: 1px solid rgba(255,255,255,.35);
+}

@@ -1,0 +1,32 @@
+@mixin SearchBar {
+  position: relative;
+  background-color: var(--bg-color);
+  outline: var(--outline);
+  border-top: none;
+  border-radius: 5px;
+  padding: 10px 0 10px 0;
+  margin-left: auto;
+  margin-right: auto;
+  input {
+    color: var(--text-color);
+    border: none;
+    outline: none;
+    padding-left: 30px;
+    font-size: 15px;
+    margin-left: 15px;
+    width: 50vw;
+    max-width: 400px;
+    background-color: transparent;
+    caret-color: var(--main-color);
+    &::placeholder {
+      color: var(--lightest-text-color);
+    }
+  }
+  .fa-magnifying-glass {
+    @include centerY;
+    left: 15px;
+    font-size: 20px;
+    cursor: pointer;
+    filter: brightness(0) invert(.4);
+  }
+}

@@ -1,14 +1,14 @@
 <template>
   <div class="App">
 
-    <div class="routePaths">
+    <!-- <div class="routePaths">
       <button
       v-for="route in routes"
       :key="route"
       @click="goToRoute(route)">
         {{ route.name }}
       </button>
-    </div>
+    </div> -->
 
     <router-view />
   </div>
@@ -30,6 +30,9 @@ export default {
     goToRoute(route) {
       this.$router.push(route.name)
     }
+  },
+  created() {
+    this.$router.push('/table')
   }
 }
 </script>
