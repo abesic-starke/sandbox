@@ -141,7 +141,7 @@ export default {
 
         const headerLetterListEl = document.getElementById('headerLettersList')
         headerLetterListEl.scrollLeft = this.scrollbarThumbLeft
-      }, 50)
+      }, 16)
 
     }
   },
