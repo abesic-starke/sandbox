@@ -126,23 +126,24 @@ export default {
   methods: {
     setScrollbarPosition(e) {
       this.contentRowsAreBeingScrolled = true
-      console.log(e)
 
       this.contentRowsScrollPositionUpdateInterval = setInterval(() => {
         const scrollbarThumbEl = document.getElementById('artificalScrollbarThumb')
-        console.log(scrollbarThumbEl.offsetLeft)
 
+        // initially set start position of scrollbar, on mousedown
         if (!this.scrollbarDragStartPosLeft) {
           this.scrollbarDragStartPosLeft = scrollbarThumbEl.offsetLeft + this.mousePos.x
         }
-        console.log(e.clientX)
-        const scrollbarThumbWidth = document.getElementById('artificalScrollbarThumb').getBoundingClientRect().width
+
+        // set scrollbar controller position on mousemove
+        const scrollbarThumbWidth = scrollbarThumbEl.getBoundingClientRect().width
         this.scrollbarThumbLeft = this.mousePos.x - scrollbarThumbWidth - (scrollbarThumbWidth / 2)
 
         // sync scrollbar position for letters
         const headerLetterListEl = document.getElementById('headerLettersList')
         headerLetterListEl.scrollLeft = this.scrollbarThumbLeft
 
+        // sync scrollbar position for numbers
         const contentRowsEl = document.getElementById('contentRows')
         contentRowsEl.scrollLeft = this.scrollbarThumbLeft
       }, 16)
@@ -150,30 +151,29 @@ export default {
     }
   },
   mounted() {
-    // setInterval(() => {
-      const headerLetterListEl = document.getElementById('headerLettersList')
-      const headerLetterListWidth = headerLetterListEl.scrollWidth
+    const headerLetterListEl = document.getElementById('headerLettersList')
+    const headerLetterListWidth = headerLetterListEl.scrollWidth
 
-      const entireTableWidth = document.getElementById('Table').getBoundingClientRect().width
-      const rowsContentWidth = entireTableWidth - this.lettersAndNumberSize
-      const scrollbarEmptySpace = headerLetterListWidth - rowsContentWidth
+    const entireTableWidth = document.getElementById('Table').getBoundingClientRect().width
+    const rowsContentWidth = entireTableWidth - this.lettersAndNumberSize
+    const scrollbarEmptySpace = headerLetterListWidth - rowsContentWidth
 
-      console.log(headerLetterListWidth)
-      console.log(rowsContentWidth)
+    console.log(headerLetterListWidth)
+    console.log(rowsContentWidth)
 
-      const scrollbarWidth = headerLetterListWidth - scrollbarEmptySpace
-      console.warn(scrollbarWidth)
-      document.getElementById('artificalScrollbarThumb').style.width = 140 + 'px'
+    const scrollbarWidth = headerLetterListWidth - scrollbarEmptySpace
+    console.warn(scrollbarWidth)
+    document.getElementById('artificalScrollbarThumb').style.width = 140 + 'px'
 
-      const handleMouseMove = (e) => {
-        this.mousePos = {
-          x: e.clientX,
-          y: e.clientY
-        }
+    // save mouse position
+    const handleMouseMove = (e) => {
+      this.mousePos = {
+        x: e.clientX,
+        y: e.clientY
       }
+    }
 
-      document.onmousemove = handleMouseMove
-    // }, 1000)
+    document.onmousemove = handleMouseMove
   }
 }
 </script>

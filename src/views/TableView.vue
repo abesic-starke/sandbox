@@ -26,8 +26,8 @@ export default {
 
 #tableCon {
   position: absolute;
-  top: 100px;
-  left: 100px;
+  top: 0;
+  left: 0;
   width: 250px;
   height: 250px;
   background-color: darkslategrey;
