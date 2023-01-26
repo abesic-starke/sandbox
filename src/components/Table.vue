@@ -139,8 +139,12 @@ export default {
         const scrollbarThumbWidth = document.getElementById('artificalScrollbarThumb').getBoundingClientRect().width
         this.scrollbarThumbLeft = this.mousePos.x - scrollbarThumbWidth - (scrollbarThumbWidth / 2)
 
+        // sync scrollbar position for letters
         const headerLetterListEl = document.getElementById('headerLettersList')
         headerLetterListEl.scrollLeft = this.scrollbarThumbLeft
+
+        const contentRowsEl = document.getElementById('contentRows')
+        contentRowsEl.scrollLeft = this.scrollbarThumbLeft
       }, 16)
 
     }
@@ -285,6 +289,15 @@ $defaultLetterWidth: 70px;
     height: 100%;
     background-color: seagreen;
     width: 50px;
+  }
+}
+
+// hide scrollbars
+#headerLettersList, #contentRows {
+  -ms-overflow-style: none;  /* Internet Explorer 10+ */
+  scrollbar-width: none;  /* Firefox */
+  &::-webkit-scrollbar { 
+    display: none;  /* Safari and Chrome */
   }
 }
 
