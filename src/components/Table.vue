@@ -1,5 +1,10 @@
 <template>
-  <div class="Table" id="Table">
+  <div
+  class="Table"
+  id="Table"
+  @mouseup="contentRowsAreBeingScrolled = false"
+  @mouseenter="mouseoverScrollbarThumb = true"
+  @mouseleave="mouseoverScrollbarThumb = false">
 
     <!-- HEADER LETTERS, INPUT, STYLE TOOLBAR -->
     <div id="top">
@@ -57,7 +62,11 @@
     </div>
 
     <div id="artificialScrollbar">
-      <div id="artificalScrollbarThumb"></div>
+      <div
+        id="artificalScrollbarThumb"
+        :style="{left: `${scrollbarThumbLeft}px`}"
+        @mousedown="setScrollbarPosition"
+      />
     </div>
 
   </div>
@@ -92,7 +101,48 @@ export default {
       },
       // these two have to be the same
       lettersAndNumberSize: 40,
-      lettersAndNumberSizePx: '40px'
+      lettersAndNumberSizePx: '40px',
+      scrollbarThumbLeft: 0,
+      scrollbarDragStartPosLeft: 0,
+      contentRowsAreBeingScrolled: false,
+      contentRowsScrollPositionUpdateInterval: null,
+      mousePos: {
+        x: 0,
+        y: 0
+      },
+      mouseoverScrollbarThumb: false
+    }
+  },
+  watch: {
+    mouseoverScrollbarThumb(bool) {
+      if (!bool) this.contentRowsAreBeingScrolled = false
+    },
+    contentRowsAreBeingScrolled(bool) {
+      if (!bool) {
+        clearInterval(this.contentRowsScrollPositionUpdateInterval)
+      }
+    }
+  },
+  methods: {
+    setScrollbarPosition(e) {
+      this.contentRowsAreBeingScrolled = true
+      console.log(e)
+
+      this.contentRowsScrollPositionUpdateInterval = setInterval(() => {
+        const scrollbarThumbEl = document.getElementById('artificalScrollbarThumb')
+        console.log(scrollbarThumbEl.offsetLeft)
+
+        if (!this.scrollbarDragStartPosLeft) {
+          this.scrollbarDragStartPosLeft = scrollbarThumbEl.offsetLeft + this.mousePos.x
+        }
+        console.log(e.clientX)
+        const scrollbarThumbWidth = document.getElementById('artificalScrollbarThumb').getBoundingClientRect().width
+        this.scrollbarThumbLeft = this.mousePos.x - scrollbarThumbWidth - (scrollbarThumbWidth / 2)
+
+        const headerLetterListEl = document.getElementById('headerLettersList')
+        headerLetterListEl.scrollLeft = this.scrollbarThumbLeft
+      }, 50)
+
     }
   },
   mounted() {
@@ -102,14 +152,23 @@ export default {
 
       const entireTableWidth = document.getElementById('Table').getBoundingClientRect().width
       const rowsContentWidth = entireTableWidth - this.lettersAndNumberSize
+      const scrollbarEmptySpace = headerLetterListWidth - rowsContentWidth
 
-      // const headerLetterListScrollbarWidth = rowsContentWidth
-
+      console.log(headerLetterListWidth)
       console.log(rowsContentWidth)
 
-      // const 
+      const scrollbarWidth = headerLetterListWidth - scrollbarEmptySpace
+      console.warn(scrollbarWidth)
+      document.getElementById('artificalScrollbarThumb').style.width = 140 + 'px'
 
-      // console.log(headerLetterListEl.scrollWidth)
+      const handleMouseMove = (e) => {
+        this.mousePos = {
+          x: e.clientX,
+          y: e.clientY
+        }
+      }
+
+      document.onmousemove = handleMouseMove
     // }, 1000)
   }
 }
@@ -121,6 +180,7 @@ export default {
   position: relative;
   width: 100%;
   height: 100%;
+  user-select: none;
 }
 
 ul {
@@ -216,10 +276,13 @@ $defaultLetterWidth: 70px;
   bottom: 0;
   left: $lettersAndNumberSize;
   width: calc(100% - #{$lettersAndNumberSize});
-  height: 5px;
+  height: 10px;
   background-color: red;
+  overflow: hidden;
   #artificalScrollbarThumb {
-    height: 5px;
+    position: absolute;
+    left: 0;
+    height: 100%;
     background-color: seagreen;
     width: 50px;
   }
