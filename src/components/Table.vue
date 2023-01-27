@@ -113,7 +113,8 @@ export default {
         y: 0
       },
       mouseoverScrollbarThumb: false,
-      artificialScrollbarShown: false
+      artificialScrollbarShown: false,
+      scrollbarEmptySpace: 0
     }
   },
   watch: {
