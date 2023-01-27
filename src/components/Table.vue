@@ -114,7 +114,9 @@ export default {
       },
       mouseoverScrollbarThumb: false,
       artificialScrollbarShown: false,
-      scrollbarEmptySpace: 0
+      scrollbarEmptySpace: 0,
+      // from middle of scrollbar
+      scrollbarClickedOffsetFromMiddle: 0
     }
   },
   watch: {
@@ -128,7 +130,7 @@ export default {
     }
   },
   methods: {
-    setScrollbarPosition(e) {
+    setScrollbarPosition() {
       this.contentRowsAreBeingScrolled = true
 
       this.contentRowsScrollPositionUpdateInterval = setInterval(() => {
@@ -147,11 +149,20 @@ export default {
 
         // set scrollbar controller position on mousemove
         const scrollbarThumbWidth = scrollbarThumbEl.getBoundingClientRect().width
-        this.scrollbarThumbLeft = this.mousePos.x - tableOffsetLeft - ((scrollbarThumbWidth / 2) * 1.5)
+        const scrollbarLeftOffset = this.mousePos.x - tableOffsetLeft - ((scrollbarThumbWidth / 2) * 1.5)
+        
+        // This makes scrollbar stay in place on click and not jump
+        // const scrollbarClickedOffsetFromMiddle =
+        //   this.mousePos.x - this.lettersAndNumberSize - tableOffsetLeft - this.scrollbarDragStartPosLeft - (scrollbarThumbWidth / 2)
+        // console.log(this.mousePos.x, this.lettersAndNumberSize, tableOffsetLeft, scrollbarLeftOffset, (scrollbarThumbWidth / 2))
+
+          // console.log(scrollbarClickedOffsetFromMiddle)
+
+        this.scrollbarThumbLeft = scrollbarLeftOffset
 
         // console.log(this.scrollbarThumbLeft)
         if (this.scrollbarThumbLeft < 1) this.scrollbarThumbLeft = 0
-        // if (this.scrollbarThumbLeft > 1) this.scrollbarThumbLeft = 0
+        if (this.scrollbarThumbLeft > this.scrollbarEmptySpace) this.scrollbarThumbLeft = this.scrollbarEmptySpace
 
         // sync scrollbar position for letters
         const headerLetterListEl = document.getElementById('headerLettersList')
@@ -171,12 +182,13 @@ export default {
 
       const entireTableWidth = document.getElementById('Table').getBoundingClientRect().width
       const rowsContentWidth = entireTableWidth - this.lettersAndNumberSize
+      
+      this.scrollbarEmptySpace = headerLetterListWidth - rowsContentWidth
 
       const scrollbarWidth = rowsContentWidth - (headerLetterListWidth - rowsContentWidth)
       // set artificial scrollbar thumb width
       document.getElementById('artificalScrollbarThumb').style.width = scrollbarWidth + 'px'
 
-      console.log(scrollbarWidth, rowsContentWidth)
       if (scrollbarWidth >= rowsContentWidth) this.artificialScrollbarShown = false
       else this.artificialScrollbarShown = true
     }, 16)
