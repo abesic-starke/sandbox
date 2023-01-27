@@ -25,7 +25,7 @@
     <!--
       NUMBER LIST, (OVERFLOW)
       CONTENT ROWS, (OVERFLOW)
-      BUTTONS
+      BUTTONS (for adding, removing)
     -->
     <div id="bottom">
       <ul id="sideNumberList">
@@ -61,6 +61,11 @@
       <div id="buttons"></div>
     </div>
 
+    <!--
+      ARTIFICIAL SCROLLBAR (handles contentRow + letterHeader scroll)
+      a normal scrollbar always goes to bottom of scroll so I had to
+      do it this way
+    -->
     <div
     id="artificialScrollbar"
     :class="{hideArtificialScrollbar: !artificialScrollbarShown}">
