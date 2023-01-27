@@ -104,6 +104,7 @@ export default {
       // these two have to be the same
       lettersAndNumberSize: 40,
       lettersAndNumberSizePx: '40px',
+      // ALL UNDER IS FOR CROSSBAR POSITION AND WIDTH
       scrollbarThumbLeft: 0,
       scrollbarDragStartPosLeft: 0,
       contentRowsAreBeingScrolled: false,
@@ -120,6 +121,7 @@ export default {
     }
   },
   watch: {
+    // for scrollbar position and width
     mouseoverScrollbarThumb(bool) {
       if (!bool) this.contentRowsAreBeingScrolled = false
     },
@@ -130,6 +132,7 @@ export default {
     }
   },
   methods: {
+    // for scrollbar position and width
     setScrollbarPosition() {
       this.contentRowsAreBeingScrolled = true
 
@@ -176,6 +179,7 @@ export default {
     }
   },
   mounted() {
+    // SET SCROLLBAR WIDTH
     setInterval(() => {
       const headerLetterListEl = document.getElementById('headerLettersList')
       const headerLetterListWidth = headerLetterListEl.scrollWidth
