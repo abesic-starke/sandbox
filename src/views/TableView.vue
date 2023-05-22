@@ -2,7 +2,7 @@
   <div class="TableView">
 
     <div id="tableCon">
-      <Table width="250px" height="250px" />
+      <Table width="100%" height="100%" />
     </div>
 
   </div>
@@ -25,11 +25,8 @@ export default {
 }
 
 #tableCon {
-  position: absolute;
-  top: 100px;
-  left: 100px;
-  width: 250px;
-  height: 250px;
+  width: 100%;
+  height: 100%;
   background-color: darkslategrey;
 }
 

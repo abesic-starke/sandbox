@@ -82,6 +82,20 @@ export default {
           ['hello', null, 'hello', 'hello4'],
           ['hello', null, 'hello', 'hello5'],
           ['hello', null, 'hello', 'hello6'],
+          ['hello', null, 'hello', 'hello7'],
+          ['hello', null, 'hello', 'hello'],
+          ['hello', null, 'hello', 'hello2'],
+          ['hello', null, 'hello', 'hello3'],
+          ['hello', null, 'hello', 'hello4'],
+          ['hello', null, 'hello', 'hello5'],
+          ['hello', null, 'hello', 'hello6'],
+          ['hello', null, 'hello', 'hello7'],
+          ['hello', null, 'hello', 'hello'],
+          ['hello', null, 'hello', 'hello2'],
+          ['hello', null, 'hello', 'hello3'],
+          ['hello', null, 'hello', 'hello4'],
+          ['hello', null, 'hello', 'hello5'],
+          ['hello', null, 'hello', 'hello6'],
           ['hello', null, 'hello', 'hello7']
         ],
         rowWidths: [50, 120, 90, 100],
@@ -229,10 +243,10 @@ $defaultLetterWidth: 70px;
   left: $lettersAndNumberSize;
   width: calc(100% - #{$lettersAndNumberSize});
   height: 5px;
-  background-color: red;
+  // background-color: red;
   #artificalScrollbarThumb {
     height: 5px;
-    background-color: seagreen;
+    // background-color: seagreen;
     width: 50px;
   }
 }
