@@ -111,6 +111,15 @@ export default {
 
       // console.log(headerLetterListEl.scrollWidth)
     // }, 1000)
+
+    setInterval(() => {
+      const contentScrollbar = document.querySelector("#contentRows")
+      const header = document.querySelector("#headerLettersList")
+
+      contentScrollbar.addEventListener("scroll", e => {
+        header.scrollLeft = contentScrollbar.scrollLeft
+      }, { passive: true })
+    }, 1000)
   }
 }
 </script>
@@ -144,6 +153,9 @@ $defaultLetterWidth: 70px;
     width: calc(100% - #{$lettersAndNumberSize});
     @include centerFlexY;
     overflow-x: overlay;
+    &::-webkit-scrollbar { 
+      display: none;  /* Safari and Chrome */
+    }
     .headerLetter {
       height: 100%;
       min-width: $defaultLetterWidth;
